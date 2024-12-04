@@ -64,45 +64,12 @@ class LogoutView(APIView):
         return Response({"message": "Logout successful"}, status=status.HTTP_204_NO_CONTENT)
     
 
-class PasswordResetAPIView(APIView):
-    permission_classes = [permissions.AllowAny]  # Anyone can access this endpoint
-
-    def post(self, request):
-        # Step 1: Validate the email
-        serializer = PasswordResetSerializer(data=request.data)
-        if serializer.is_valid():
-            email = serializer.validated_data.get['email']
-
-            # Step 2: Find the user based on email
-            try:
-                user = CustomUser().objects.get(email=email)
-            except CustomUser().DoesNotExist:
-                return Response({"detail": "Email not found."}, status=status.HTTP_400_BAD_REQUEST)
-
-            # Step 3: Generate token and uid
-            uidb64 = urlsafe_base64_encode(str(user.pk).encode())
-            token = default_token_generator.make_token(user)
-
-            # Step 4: Prepare the reset URL
-            reset_url = f"{settings.FRONTEND_URL}/reset-password/{uidb64}/{token}/"
-
-            # Step 5: Prepare the email content
-            email_subject = "Password Reset Request"
-            email_body = render_to_string(
-                'emails/password_reset_email.html',  # Path to your email template
-                {'reset_url': reset_url, 'user': user}
-            )
-
-            # Step 6: Send email via Resend
-            try:
-                resend.emails.send(
-                    from_email="no-reply@yourdomain.com",
-                    to=[email],
-                    subject=email_subject,
-                    text=email_body
-                )
-                return Response({"detail": "Password reset email sent."}, status=status.HTTP_200_OK)
-            except resend.exceptions.ResendError:
-                return Response({"detail": "Failed to send email."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
+class PasswordResetView(APIView): 
+    def post(self, request): 
+        serializer = PasswordResetSerializer(data=request.data, context={'request': request}) 
+        if serializer.is_valid(): 
+            serializer.save() 
+            return Response({
+                "message": "Password reset link sent."
+                }, status=status.HTTP_200_OK) 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
