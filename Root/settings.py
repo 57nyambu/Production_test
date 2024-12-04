@@ -9,12 +9,18 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-
+import os
 from pathlib import Path
+import environ
+from datetime import timedelta
+
+
+env = environ.Env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -38,8 +44,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
     'apps.accounts',
+    'apps.utils',
 
 ]
 
@@ -48,6 +55,22 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
 }
+
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),  # Short-lived access tokens
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),     # Longer-lived refresh tokens
+    'ROTATE_REFRESH_TOKENS': True,                  # Issue a new refresh token on every use
+    'BLACKLIST_AFTER_ROTATION': True,               # Blacklist old refresh tokens if rotated
+    'ALGORITHM': 'HS256',                           # Default is HS256, but you can switch to RS256 for RSA keys
+    'SIGNING_KEY': SECRET_KEY,                      # Default is Django's SECRET_KEY
+    'AUTH_HEADER_TYPES': ('Bearer',),               # Authorization: Bearer <token>
+    'USER_ID_FIELD': 'id',                          # Field to identify the user
+    'USER_ID_CLAIM': 'user_id',                     # Claim name in the token
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),  # Token classes
+    'TOKEN_TYPE_CLAIM': 'token_type',               # Token type claim
+}
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -131,4 +154,14 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-AUTH_USER_NODEL = 'apps.core.CustomUser'
+AUTH_USER_MODEL = 'accounts.CustomUser'
+
+# Email conf
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+GMAIL_ADDRESS = env('GMAIL_ADDRESS')
+GMAIL_APP_PASSWORD = env('GMAIL_APP_PASSWORD')
+GMAIL_DEFAULT_FROM_EMAIL = env('GMAIL_DEFAULT_FROM_EMAIL')

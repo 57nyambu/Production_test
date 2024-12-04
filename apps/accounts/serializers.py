@@ -1,8 +1,13 @@
 from rest_framework import serializers
 from .models import CustomUser
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode 
+from django.utils.encoding import force_bytes
+from django.core.mail import send_mail
 
 class CustomUserSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True)
+    password = serializers.CharField(min_length=6, write_only=True)
 
     class Meta:
         model = CustomUser
@@ -28,7 +33,35 @@ class LoginSerializer(serializers.Serializer):
 
 class PasswordResetSerializer(serializers.Serializer):
     email = serializers.EmailField()
+
     def validate_email(self, value):
-        if not CustomUser.objects.filter(email=value).exists():
-            raise serializers.ValidationError("This email does not exist.")
+        try:
+            user = CustomUser.objects.get(email=value)
+        except CustomUser.DoesNotExist:
+            raise serializers.ValidationError("Email not found.")
         return value
+    
+    def save(self): 
+        request = self.context.get('request') 
+        user = CustomUser.objects.get(email=self.validated_data['email'])
+        token = default_token_generator.make_token(user) 
+        uid = urlsafe_base64_encode(force_bytes(user.pk)) 
+        reset_link = request.build_absolute_uri(f'/reset-password/{uid}/{token}/') 
+        send_mail( 
+            'Password Reset Request', 
+            f'Click the link to reset your password: {reset_link}', 
+            'from@example.com', [user.email], fail_silently=False, )
+    
+class LogoutSerializer(serializers.Serializer):
+    refresh = serializers.CharField()
+
+    def validate(self, attrs):
+        self.token = attrs['refresh']
+        return attrs
+
+    def save(self, **kwargs):
+        try:
+            refresh_token = RefreshToken(self.token)
+            refresh_token.blacklist()
+        except Exception as e:
+            raise serializers.ValidationError("Invalid or expired token")

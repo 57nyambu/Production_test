@@ -2,3 +2,5 @@ venv/
 requirements.txt
 db.sqlite3
 test*
+.env
+data.txt
