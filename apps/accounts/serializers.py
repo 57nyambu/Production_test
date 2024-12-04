@@ -52,16 +52,12 @@ class PasswordResetSerializer(serializers.Serializer):
             f'Click the link to reset your password: {reset_link}', 
             'from@example.com', [user.email], fail_silently=False, )
     
+
 class LogoutSerializer(serializers.Serializer):
-    refresh = serializers.CharField()
+    refresh_token = serializers.CharField()
 
-    def validate(self, attrs):
-        self.token = attrs['refresh']
-        return attrs
-
-    def save(self, **kwargs):
-        try:
-            refresh_token = RefreshToken(self.token)
-            refresh_token.blacklist()
-        except Exception as e:
-            raise serializers.ValidationError("Invalid or expired token")
+    def validate(self, data):
+        refresh_token = data.get("refresh_token")
+        if not refresh_token:
+            raise serializers.ValidationError("Refresh token is required.")
+        return data
