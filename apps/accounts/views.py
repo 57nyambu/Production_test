@@ -1,9 +1,11 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
-from .serializers import CustomUserSerializer, LoginSerializer, PasswordResetSerializer, LogoutSerializer
+from rest_framework.permissions import IsAuthenticated
+from .serializers import CustomUserSerializer, LoginSerializer, PasswordResetSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
+from rest_framework_simplejwt.exceptions import InvalidToken
 
 #from apps.utils.email_service.send_email_service import reg_email
 
@@ -55,21 +57,21 @@ class LoginView(APIView):
 
 
 class LogoutView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        serializer = LogoutSerializer(data=request.data)
-        if serializer.is_valid():
-            # Extract the refresh token from the request
-            refresh_token = serializer.validated_data.get('refresh_token')
-            try:
-                token = RefreshToken(refresh_token)
-                token.blacklist()  # This will only work if blacklisting is enabled
-                return Response({"message": "Logout successful"}, status=status.HTTP_204_NO_CONTENT)
-            except Exception as e:
-                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            refresh_token = request.data.get("refresh_token", None)
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)    
+            if not refresh_token:
+                return Response({"error": "Refresh token is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+
+            return Response({"message": "Successfully logged out."}, status=status.HTTP_200_OK)
+        except InvalidToken as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 class PasswordResetView(APIView): 
     def post(self, request): 
@@ -81,17 +83,9 @@ class PasswordResetView(APIView):
                 }, status=status.HTTP_200_OK) 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class AdminView(APIView):
-    permission_classes=[permissions.IsAdminUser]
+
+class TestProtectedView(APIView):
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        return Response({'message': 'Admin Authentication working'}
-                        , status=status.HTTP_200_OK)
-    
-
-class RegularUserView(APIView):
-    permission_classes=[permissions.IsAuthenticated]
-
-    def get(self, request):
-        return Response({'message': 'User Authentication working'}
-                        , status=status.HTTP_200_OK)
+        return Response({'message': "Protected andpoint accessible to authenticated users."})

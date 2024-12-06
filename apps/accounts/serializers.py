@@ -53,11 +53,3 @@ class PasswordResetSerializer(serializers.Serializer):
             'from@example.com', [user.email], fail_silently=False, )
     
 
-class LogoutSerializer(serializers.Serializer):
-    refresh_token = serializers.CharField()
-
-    def validate(self, data):
-        refresh_token = data.get("refresh_token")
-        if not refresh_token:
-            raise serializers.ValidationError("Refresh token is required.")
-        return data
