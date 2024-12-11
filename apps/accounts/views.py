@@ -6,6 +6,7 @@ from .serializers import CustomUserSerializer, LoginSerializer, PasswordResetSer
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.exceptions import InvalidToken
+from apps.utils.emailService import welcomeEmail
 
 #from apps.utils.email_service.send_email_service import reg_email
 
@@ -15,6 +16,8 @@ class RegisterUserView(APIView):
         serializer = CustomUserSerializer(data=user_data)
         if serializer.is_valid():
             serializer.save()
+
+            welcomeEmail(user_data)
 
             user = serializer.data
             
