@@ -4,7 +4,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode 
 from django.utils.encoding import force_bytes
-from django.core.mail import send_mail
+from apps.utils.emailService import forgotPassEmail
 
 class CustomUserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(min_length=6, write_only=True)
@@ -47,9 +47,12 @@ class PasswordResetSerializer(serializers.Serializer):
         token = default_token_generator.make_token(user) 
         uid = urlsafe_base64_encode(force_bytes(user.pk)) 
         reset_link = request.build_absolute_uri(f'/reset-password/{uid}/{token}/') 
-        send_mail( 
-            'Password Reset Request', 
-            f'Click the link to reset your password: {reset_link}', 
-            'from@example.com', [user.email], fail_silently=False, )
-    
+        email = user.email
+        #send_mail( 
+        #    'Password Reset Request', 
+        #    f'Click the link to reset your password: {reset_link}', 
+        #    'from@example.com', [user.email], fail_silently=False, )
+        forgotPassEmail(user, reset_link)
 
+        return email
+    

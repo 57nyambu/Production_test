@@ -62,18 +62,18 @@ def newUpdate(user):
     email = resend.Emails.send(params)
 
 
-def forgotPassEmail(user):
+def forgotPassEmail(user, resetLink):
     params: resend.Emails.SendParams = {
     "from": "Finarchitect <support@finarchitect.site>",
     "to": [f"{user['email']}"],
     "subject": "Reset Your Finarchitect Password",
-    "html": """
+    "html": f"""
         <html>
         <body>
             <h1>Password Reset Request</h1>
             <p>Dear ,</p>
             <p>We received a request to reset your password for your Finarchitect account. Click the link below to reset your password:</p>
-            <p><a href="[reset_link]" target="_blank">Reset Password</a></p>
+            <p><a href="{resetLink}" target="_blank">Reset Password</a></p>
             <p>If you did not request a password reset, please ignore this email. Your password will remain unchanged.</p>
             <p>For security reasons, this link will expire in 24 hours.</p>
             <p>If you have any questions or need further assistance, feel free to contact our support team at <a href="mailto:support@finarchitect.site">support@finarchitect.site</a>.</p>

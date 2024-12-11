@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 from datetime import timedelta
+import psycopg2
 import environ
 env = environ.Env(DEBUG=(bool, False) )
 
