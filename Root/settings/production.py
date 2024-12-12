@@ -1,5 +1,5 @@
 import dj_database_url
-from .base import *
+from Root.settings.base import *
 
 DEBUG = False
 
