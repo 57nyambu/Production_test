@@ -26,7 +26,8 @@ class RegisterUserView(APIView):
                 'message': "Welcome to the team!",
             }, status=status.HTTP_201_CREATED)
         #return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response(f"{user_data['email']} is already registered!", status=status.HTTP_400_BAD_REQUEST)
+        return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
     
 
 
