@@ -8,6 +8,9 @@ from django.contrib.auth import authenticate
 from rest_framework_simplejwt.exceptions import InvalidToken
 from apps.utils.emailService import welcomeEmail
 from django.views.generic.base import TemplateView
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class WelcomeView(TemplateView):
@@ -16,6 +19,8 @@ class WelcomeView(TemplateView):
 class RegisterUserView(APIView):
     def post(self, request):
         user_data = request.data
+        logger.debug(f"Request Data: {request.body}") #log incoming data 
+        logger.debug(f"Request Data: {user_data}")  # Log parsed request data
         serializer = CustomUserSerializer(data=user_data)
         if serializer.is_valid():
             serializer.save()
