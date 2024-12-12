@@ -7,8 +7,12 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.exceptions import InvalidToken
 from apps.utils.emailService import welcomeEmail
+from django.shortcuts import render
 
 #from apps.utils.email_service.send_email_service import reg_email
+
+def home(request):
+    return render(request, 'default.html') 
 
 class RegisterUserView(APIView):
     def post(self, request):
