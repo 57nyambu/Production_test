@@ -3,18 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to Finarchitect Api</title>
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <title>Welcome to Finarchitect</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            text-align: center;
+            background: #ffffff;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 400px;
+        }
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: #333;
+        }
+        a {
+            display: block;
+            margin: 0.5rem 0;
+            text-decoration: none;
+            color: #007bff;
+            font-size: 1rem;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <h1>Welcome to Finarchitect</h1>
-        <p>Navigate through our authentication system using the links below:</p>
-        <ul>
-            <li><a href="https://finarchitect.onrender.com/api/auth/register/" target="_blank">Register/Signup</a></li>
-            <li><a href="https://finarchitect.onrender.com/api/auth/login/" target="_blank">Login</a></li>
-            <li><a href="https://finarchitect.onrender.com/api/auth/logout/" target="_blank">Logout</a></li>
-        </ul>
+        <h1>Welcome to Finarchitect Endpoint</h1>
+        <a href="https://finarchitect.onrender.com/api/auth/register/">Register / Sign Up</a>
+        <a href="https://finarchitect.onrender.com/api/auth/login/">Login</a>
+        <a href="https://finarchitect.onrender.com/api/auth/logout/">Logout</a>
     </div>
 </body>
 </html>
