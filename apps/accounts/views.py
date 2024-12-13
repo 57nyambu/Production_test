@@ -18,8 +18,8 @@ class WelcomeView(TemplateView):
 
 class RegisterUserView(APIView):
     def post(self, request):
-        user_data = request.data
         logger.debug(f"Request Data: {request.body}") #log incoming data 
+        user_data = request.data
         logger.debug(f"Request Data: {user_data}")  # Log parsed request data
         serializer = CustomUserSerializer(data=user_data)
         if serializer.is_valid():
