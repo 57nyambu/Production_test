@@ -16,28 +16,26 @@ logger = logging.getLogger(__name__)
 class WelcomeView(TemplateView):
     template_name = "default.html"
 
-class RegisterUserView(APIView):
-    def post(self, request):
-        logger.debug(f"Request Data: {request.body}") #log incoming data 
-        user_data = request.data
-        logger.debug(f"Request Data: {user_data}")  # Log parsed request data
-        serializer = CustomUserSerializer(data=user_data)
-        if serializer.is_valid():
-            serializer.save()
-
-            welcomeEmail(user_data)
-
-            user = serializer.data
-            
-            return Response({
-                'data': user,
-                'message': "Welcome to the team!",
-            }, status=status.HTTP_201_CREATED)
-        #return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-
-    
-
+class RegisterUserView(APIView): 
+    def post(self, request): 
+        logger.debug(f"Request Data: {request.body}") # Log incoming data 
+        user_data = request.data 
+        logger.debug(f"Request Data: {user_data}") # Log parsed request data 
+        
+        serializer = CustomUserSerializer(data=user_data) 
+        if serializer.is_valid(): 
+            serializer.save() 
+            welcomeEmail(user_data) 
+            user = serializer.data 
+            response = Response({ 
+                'data': user, 
+                'message': "Welcome to the team!", 
+                }, status=status.HTTP_201_CREATED) 
+            response['Content-Type'] = 'application/json' 
+            return response 
+        response = Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST) 
+        response['Content-Type'] = 'application/json' 
+        return response
 
 class LoginView(APIView):
     permission_classes=[permissions.AllowAny]
