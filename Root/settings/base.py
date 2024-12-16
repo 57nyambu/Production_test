@@ -38,13 +38,17 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         ],
+    'DEFAULT_PARSER_CLASSES': [
+        'rest_framework.parsers.JSONParser',
+        'rest_framework.parsers.FormParser',  # Optional: for form data
+    ],
 }
 
 APPEND_SLASH = False
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),  # Short-lived access tokens
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),     # Longer-lived refresh tokens
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=10),     # Longer-lived refresh tokens
     'ROTATE_REFRESH_TOKENS': True,                  # Issue a new refresh token on every use
     'BLACKLIST_AFTER_ROTATION': True,               # Blacklist old refresh tokens if rotated
     'ALGORITHM': 'HS256',                           # Default is HS256, but you can switch to RS256 for RSA keys

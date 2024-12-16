@@ -56,3 +56,27 @@ class PasswordResetSerializer(serializers.Serializer):
 
         return email
     
+
+class UpdateUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = [
+            'first_name', 
+            'last_name',
+            'email',  
+            'company',
+            'password',
+        ]
+        extra_kwargs = {
+            'password': {'write_only': True},
+        }
+
+    def update(self, instance, validated_data):
+        # Update user fields
+        for attr, value in validated_data.items():
+            if attr == 'password':  # Handle password separately
+                instance.set_password(value)
+            else:
+                setattr(instance, attr, value)
+        instance.save()
+        return instance

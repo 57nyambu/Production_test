@@ -94,8 +94,69 @@ class PasswordResetView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class UpdateUserView(APIView):
+
+    permission_classes = [permissions.IsAuthenticated]  # Ensure that only authenticated users can access this view
+
+    def get(self, request):
+        user = request.user  # Get the currently authenticated user
+        serializer = CustomUserSerializer(user)
+        # Exclude the 'id' from the response
+        data = serializer.data
+        data.pop('id', None)
+        return Response({
+            "success": True,
+            "message": "User data retrieved successfully.",
+            "data": data
+        }, status=status.HTTP_200_OK)
+
+    def patch(self, request):
+        """
+        Update current user data.
+        """
+        user = request.user  # Get the currently authenticated user
+        serializer = CustomUserSerializer(user, data=request.data, partial=True)  # Allow partial updates
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response({
+                "success": True,
+                "message": "User data updated successfully.",
+                "data": serializer.data
+            }, status=status.HTTP_200_OK)
+
+        return Response({
+            "success": False,
+            "message": "Failed to update user data.",
+            "data": serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+
 class TestProtectedView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         return Response({'message': "Protected andpoint accessible to authenticated users."})
+    
+
+class RetrieveUserDataView(APIView):
+    def get(self, request):
+        if not request.user.is_authenticated:
+            return Response({"error": "Authentication required."}, status=status.HTTP_401_UNAUTHORIZED)
+
+        # Allow access only to users with is_superuser, is_admin, or is_staff permissions
+        user = request.user
+        if not (user.is_superuser or user.is_staff or getattr(user, 'is_admin', False)):
+            return Response({"error": "Access denied. Insufficient permissions."}, status=status.HTTP_403_FORBIDDEN)
+
+        data = {
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'email': user.email,
+            'company': user.company
+        }
+
+        return Response({
+            'data': data,
+            'message': "User data retrieved successfully."
+        }, status=status.HTTP_200_OK)
