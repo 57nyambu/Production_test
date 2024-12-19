@@ -5,3 +5,4 @@ test*
 data.txt
 __pycache__/
 *.pyc
+models.txt
