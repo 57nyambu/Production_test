@@ -3053,3 +3053,393 @@ File C:\Users\xc\Desktop\Finarchitect\venv\Lib\site-packages\django\contrib\auth
 File C:\Users\xc\Desktop\Finarchitect\venv\Lib\site-packages\rest_framework_simplejwt\token_blacklist\migrations\0008_migrate_to_bigautofield.py first seen with mtime 1733207373.2911384
 File C:\Users\xc\Desktop\Finarchitect\apps\accounts\migrations\__init__.py first seen with mtime 1733238671.8818505
 File C:\Users\xc\Desktop\Finarchitect\venv\Lib\site-packages\django\contrib\messages\middleware.py first seen with mtime 1733201517.2017817
+(0.531) 
+            SELECT
+                c.relname,
+                CASE
+                    WHEN c.relispartition THEN 'p'
+                    WHEN c.relkind IN ('m', 'v') THEN 'v'
+                    ELSE 't'
+                END,
+                obj_description(c.oid, 'pg_class')
+            FROM pg_catalog.pg_class c
+            LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+            WHERE c.relkind IN ('f', 'm', 'p', 'r', 'v')
+                AND n.nspname NOT IN ('pg_catalog', 'pg_toast')
+                AND pg_catalog.pg_table_is_visible(c.oid)
+        ; args=None; alias=default
+(0.359) SELECT "django_migrations"."id", "django_migrations"."app", "django_migrations"."name", "django_migrations"."applied" FROM "django_migrations"; args=(); alias=default
+(2.672) 
+            SELECT
+                c.relname,
+                CASE
+                    WHEN c.relispartition THEN 'p'
+                    WHEN c.relkind IN ('m', 'v') THEN 'v'
+                    ELSE 't'
+                END,
+                obj_description(c.oid, 'pg_class')
+            FROM pg_catalog.pg_class c
+            LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+            WHERE c.relkind IN ('f', 'm', 'p', 'r', 'v')
+                AND n.nspname NOT IN ('pg_catalog', 'pg_toast')
+                AND pg_catalog.pg_table_is_visible(c.oid)
+        ; args=None; alias=default
+(0.297) SELECT "django_migrations"."id", "django_migrations"."app", "django_migrations"."name", "django_migrations"."applied" FROM "django_migrations"; args=(); alias=default
+(0.312) 
+            SELECT
+                c.relname,
+                CASE
+                    WHEN c.relispartition THEN 'p'
+                    WHEN c.relkind IN ('m', 'v') THEN 'v'
+                    ELSE 't'
+                END,
+                obj_description(c.oid, 'pg_class')
+            FROM pg_catalog.pg_class c
+            LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+            WHERE c.relkind IN ('f', 'm', 'p', 'r', 'v')
+                AND n.nspname NOT IN ('pg_catalog', 'pg_toast')
+                AND pg_catalog.pg_table_is_visible(c.oid)
+        ; args=None; alias=default
+(0.297) SELECT "django_migrations"."id", "django_migrations"."app", "django_migrations"."name", "django_migrations"."applied" FROM "django_migrations"; args=(); alias=default
+(0.328) 
+            SELECT
+                c.relname,
+                CASE
+                    WHEN c.relispartition THEN 'p'
+                    WHEN c.relkind IN ('m', 'v') THEN 'v'
+                    ELSE 't'
+                END,
+                obj_description(c.oid, 'pg_class')
+            FROM pg_catalog.pg_class c
+            LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+            WHERE c.relkind IN ('f', 'm', 'p', 'r', 'v')
+                AND n.nspname NOT IN ('pg_catalog', 'pg_toast')
+                AND pg_catalog.pg_table_is_visible(c.oid)
+        ; args=None; alias=default
+(0.000) BEGIN; args=None; alias=default
+CREATE TABLE "financials_capitalexpenditure" ("id" uuid NOT NULL PRIMARY KEY, "created_at" timestamp with time zone NOT NULL, "updated_at" timestamp with time zone NOT NULL, "maintenance_capex" numeric(5, 2) NOT NULL, "growth_capex" numeric(5, 2) NOT NULL, "asset_lifespan" integer NOT NULL CHECK ("asset_lifespan" >= 0), "capitalized_costs" numeric(15, 2) NOT NULL); (params None)
+(0.797) CREATE TABLE "financials_capitalexpenditure" ("id" uuid NOT NULL PRIMARY KEY, "created_at" timestamp with time zone NOT NULL, "updated_at" timestamp with time zone NOT NULL, "maintenance_capex" numeric(5, 2) NOT NULL, "growth_capex" numeric(5, 2) NOT NULL, "asset_lifespan" integer NOT NULL CHECK ("asset_lifespan" >= 0), "capitalized_costs" numeric(15, 2) NOT NULL); args=None; alias=default
+CREATE TABLE "financials_employeesalaryinfo" ("id" uuid NOT NULL PRIMARY KEY, "created_at" timestamp with time zone NOT NULL, "updated_at" timestamp with time zone NOT NULL, "salary_growth" numeric(5, 2) NOT NULL); (params None)
+(0.297) CREATE TABLE "financials_employeesalaryinfo" ("id" uuid NOT NULL PRIMARY KEY, "created_at" timestamp with time zone NOT NULL, "updated_at" timestamp with time zone NOT NULL, "salary_growth" numeric(5, 2) NOT NULL); args=None; alias=default
+CREATE TABLE "financials_industrymetrics" ("id" uuid NOT NULL PRIMARY KEY, "created_at" timestamp with time zone NOT NULL, "updated_at" timestamp with time zone NOT NULL, "market_share" numeric(5, 2) NOT NULL, "industry_growth_rate" numeric(5, 2) NOT NULL, "competitor_count" integer NOT NULL CHECK ("competitor_count" >= 0), "market_size" numeric(15, 2) NOT NULL, "corporate_tax_rate" numeric(5, 2) NOT NULL, "inflation_rate" numeric(5, 2) NOT NULL, "gdp_growth_rate" numeric(5, 2) NOT NULL, "interest_rate" numeric(5, 2) NOT NULL); (params None)
+(0.328) CREATE TABLE "financials_industrymetrics" ("id" uuid NOT NULL PRIMARY KEY, "created_at" timestamp with time zone NOT NULL, "updated_at" timestamp with time zone NOT NULL, "market_share" numeric(5, 2) NOT NULL, "industry_growth_rate" numeric(5, 2) NOT NULL, "competitor_count" integer NOT NULL CHECK ("competitor_count" >= 0), "market_size" numeric(15, 2) NOT NULL, "corporate_tax_rate" numeric(5, 2) NOT NULL, "inflation_rate" numeric(5, 2) NOT NULL, "gdp_growth_rate" numeric(5, 2) NOT NULL, "interest_rate" numeric(5, 2) NOT NULL); args=None; alias=default
+CREATE TABLE "financials_revenueexpenses" ("id" uuid NOT NULL PRIMARY KEY, "created_at" timestamp with time zone NOT NULL, "updated_at" timestamp with time zone NOT NULL, "revenue" numeric(15, 2) NOT NULL, "expenses" numeric(15, 2) NOT NULL, "cost_of_goods_sold" numeric(15, 2) NOT NULL, "direct_labor" numeric(15, 2) NOT NULL, "manufacturing_overhead" numeric(15, 2) NOT NULL, "gross_profit" numeric(15, 2) NULL, "salaries" numeric(15, 2) NOT NULL, "rent" numeric(15, 2) NOT NULL, "marketing" numeric(15, 2) NOT NULL, "technology" numeric(15, 2) NOT NULL, "insurance" numeric(15, 2) NOT NULL, "other" numeric(15, 2) NOT NULL, "total_operating_expenses" numeric(15, 2) NULL); (params None)
+(0.297) CREATE TABLE "financials_revenueexpenses" ("id" uuid NOT NULL PRIMARY KEY, "created_at" timestamp with time zone NOT NULL, "updated_at" timestamp with time zone NOT NULL, "revenue" numeric(15, 2) NOT NULL, "expenses" numeric(15, 2) NOT NULL, "cost_of_goods_sold" numeric(15, 2) NOT NULL, "direct_labor" numeric(15, 2) NOT NULL, "manufacturing_overhead" numeric(15, 2) NOT NULL, "gross_profit" numeric(15, 2) NULL, "salaries" numeric(15, 2) NOT NULL, "rent" numeric(15, 2) NOT NULL, "marketing" numeric(15, 2) NOT NULL, "technology" numeric(15, 2) NOT NULL, "insurance" numeric(15, 2) NOT NULL, "other" numeric(15, 2) NOT NULL, "total_operating_expenses" numeric(15, 2) NULL); args=None; alias=default
+CREATE TABLE "financials_workingcapital" ("id" uuid NOT NULL PRIMARY KEY, "created_at" timestamp with time zone NOT NULL, "updated_at" timestamp with time zone NOT NULL, "days_receivables" integer NOT NULL CHECK ("days_receivables" >= 0), "days_inventory" integer NOT NULL CHECK ("days_inventory" >= 0), "days_payables" integer NOT NULL CHECK ("days_payables" >= 0), "working_capital_days" integer NOT NULL CHECK ("working_capital_days" >= 0)); (params None)
+(0.328) CREATE TABLE "financials_workingcapital" ("id" uuid NOT NULL PRIMARY KEY, "created_at" timestamp with time zone NOT NULL, "updated_at" timestamp with time zone NOT NULL, "days_receivables" integer NOT NULL CHECK ("days_receivables" >= 0), "days_inventory" integer NOT NULL CHECK ("days_inventory" >= 0), "days_payables" integer NOT NULL CHECK ("days_payables" >= 0), "working_capital_days" integer NOT NULL CHECK ("working_capital_days" >= 0)); args=None; alias=default
+CREATE TABLE "financials_capitalasset" ("id" uuid NOT NULL PRIMARY KEY, "created_at" timestamp with time zone NOT NULL, "updated_at" timestamp with time zone NOT NULL, "name" varchar(255) NOT NULL, "value" numeric(15, 2) NOT NULL, "type" varchar(50) NOT NULL, "description" text NULL, "capital_expenditure_id" uuid NOT NULL); (params None)
+(0.391) CREATE TABLE "financials_capitalasset" ("id" uuid NOT NULL PRIMARY KEY, "created_at" timestamp with time zone NOT NULL, "updated_at" timestamp with time zone NOT NULL, "name" varchar(255) NOT NULL, "value" numeric(15, 2) NOT NULL, "type" varchar(50) NOT NULL, "description" text NULL, "capital_expenditure_id" uuid NOT NULL); args=None; alias=default
+CREATE TABLE "financials_adminexpense" ("id" uuid NOT NULL PRIMARY KEY, "created_at" timestamp with time zone NOT NULL, "updated_at" timestamp with time zone NOT NULL, "type" varchar(50) NOT NULL, "amount" numeric(15, 2) NOT NULL, "description" text NULL, "employee_salary_info_id" uuid NOT NULL); (params None)
+(0.313) CREATE TABLE "financials_adminexpense" ("id" uuid NOT NULL PRIMARY KEY, "created_at" timestamp with time zone NOT NULL, "updated_at" timestamp with time zone NOT NULL, "type" varchar(50) NOT NULL, "amount" numeric(15, 2) NOT NULL, "description" text NULL, "employee_salary_info_id" uuid NOT NULL); args=None; alias=default
+CREATE TABLE "financials_staff" ("id" uuid NOT NULL PRIMARY KEY, "created_at" timestamp with time zone NOT NULL, "updated_at" timestamp with time zone NOT NULL, "position" varchar(255) NOT NULL, "salary" numeric(15, 2) NOT NULL, "count" integer NOT NULL CHECK ("count" >= 0), "employee_salary_info_id" uuid NOT NULL); (params None)
+(0.296) CREATE TABLE "financials_staff" ("id" uuid NOT NULL PRIMARY KEY, "created_at" timestamp with time zone NOT NULL, "updated_at" timestamp with time zone NOT NULL, "position" varchar(255) NOT NULL, "salary" numeric(15, 2) NOT NULL, "count" integer NOT NULL CHECK ("count" >= 0), "employee_salary_info_id" uuid NOT NULL); args=None; alias=default
+ALTER TABLE "financials_capitalasset" ADD CONSTRAINT "financials_capitalas_capital_expenditure__61cb1870_fk_financial" FOREIGN KEY ("capital_expenditure_id") REFERENCES "financials_capitalexpenditure" ("id") DEFERRABLE INITIALLY DEFERRED; (params None)
+(0.437) ALTER TABLE "financials_capitalasset" ADD CONSTRAINT "financials_capitalas_capital_expenditure__61cb1870_fk_financial" FOREIGN KEY ("capital_expenditure_id") REFERENCES "financials_capitalexpenditure" ("id") DEFERRABLE INITIALLY DEFERRED; args=None; alias=default
+CREATE INDEX "financials_capitalasset_capital_expenditure_id_61cb1870" ON "financials_capitalasset" ("capital_expenditure_id"); (params None)
+(0.313) CREATE INDEX "financials_capitalasset_capital_expenditure_id_61cb1870" ON "financials_capitalasset" ("capital_expenditure_id"); args=None; alias=default
+ALTER TABLE "financials_adminexpense" ADD CONSTRAINT "financials_adminexpe_employee_salary_info_19685a74_fk_financial" FOREIGN KEY ("employee_salary_info_id") REFERENCES "financials_employeesalaryinfo" ("id") DEFERRABLE INITIALLY DEFERRED; (params None)
+(0.375) ALTER TABLE "financials_adminexpense" ADD CONSTRAINT "financials_adminexpe_employee_salary_info_19685a74_fk_financial" FOREIGN KEY ("employee_salary_info_id") REFERENCES "financials_employeesalaryinfo" ("id") DEFERRABLE INITIALLY DEFERRED; args=None; alias=default
+CREATE INDEX "financials_adminexpense_employee_salary_info_id_19685a74" ON "financials_adminexpense" ("employee_salary_info_id"); (params None)
+(0.312) CREATE INDEX "financials_adminexpense_employee_salary_info_id_19685a74" ON "financials_adminexpense" ("employee_salary_info_id"); args=None; alias=default
+ALTER TABLE "financials_staff" ADD CONSTRAINT "financials_staff_employee_salary_info_f7cf3886_fk_financial" FOREIGN KEY ("employee_salary_info_id") REFERENCES "financials_employeesalaryinfo" ("id") DEFERRABLE INITIALLY DEFERRED; (params None)
+(0.297) ALTER TABLE "financials_staff" ADD CONSTRAINT "financials_staff_employee_salary_info_f7cf3886_fk_financial" FOREIGN KEY ("employee_salary_info_id") REFERENCES "financials_employeesalaryinfo" ("id") DEFERRABLE INITIALLY DEFERRED; args=None; alias=default
+CREATE INDEX "financials_staff_employee_salary_info_id_f7cf3886" ON "financials_staff" ("employee_salary_info_id"); (params None)
+(0.313) CREATE INDEX "financials_staff_employee_salary_info_id_f7cf3886" ON "financials_staff" ("employee_salary_info_id"); args=None; alias=default
+(0.390) COMMIT; args=None; alias=default
+(0.328) INSERT INTO "django_migrations" ("app", "name", "applied") VALUES ('financials', '0001_initial', '2024-12-20T09:27:30.183654+00:00'::timestamptz) RETURNING "django_migrations"."id"; args=('financials', '0001_initial', datetime.datetime(2024, 12, 20, 9, 27, 30, 183654, tzinfo=datetime.timezone.utc)); alias=default
+(0.000) BEGIN; args=None; alias=default
+CREATE TABLE "financials_adminmarketingexp" ("id" uuid NOT NULL PRIMARY KEY, "created_at" timestamp with time zone NOT NULL, "updated_at" timestamp with time zone NOT NULL, "exp_type" varchar(255) NOT NULL, "amount" numeric(10, 2) NOT NULL, "description" text NOT NULL); (params None)
+(0.688) CREATE TABLE "financials_adminmarketingexp" ("id" uuid NOT NULL PRIMARY KEY, "created_at" timestamp with time zone NOT NULL, "updated_at" timestamp with time zone NOT NULL, "exp_type" varchar(255) NOT NULL, "amount" numeric(10, 2) NOT NULL, "description" text NOT NULL); args=None; alias=default
+CREATE TABLE "financials_allexpenses" ("id" uuid NOT NULL PRIMARY KEY, "created_at" timestamp with time zone NOT NULL, "updated_at" timestamp with time zone NOT NULL, "average_selling_price" numeric(10, 2) NOT NULL, "units_sold" integer NOT NULL CHECK ("units_sold" >= 0), "admin_marketing_exp_id" uuid NOT NULL); (params None)
+(0.328) CREATE TABLE "financials_allexpenses" ("id" uuid NOT NULL PRIMARY KEY, "created_at" timestamp with time zone NOT NULL, "updated_at" timestamp with time zone NOT NULL, "average_selling_price" numeric(10, 2) NOT NULL, "units_sold" integer NOT NULL CHECK ("units_sold" >= 0), "admin_marketing_exp_id" uuid NOT NULL); args=None; alias=default
+CREATE TABLE "financials_asset" ("id" uuid NOT NULL PRIMARY KEY, "created_at" timestamp with time zone NOT NULL, "updated_at" timestamp with time zone NOT NULL, "name" varchar(255) NOT NULL, "value" numeric(15, 2) NOT NULL, "type" varchar(50) NOT NULL, "description" text NULL); (params None)
+(0.500) CREATE TABLE "financials_asset" ("id" uuid NOT NULL PRIMARY KEY, "created_at" timestamp with time zone NOT NULL, "updated_at" timestamp with time zone NOT NULL, "name" varchar(255) NOT NULL, "value" numeric(15, 2) NOT NULL, "type" varchar(50) NOT NULL, "description" text NULL); args=None; alias=default
+CREATE TABLE "financials_capex" ("id" uuid NOT NULL PRIMARY KEY, "created_at" timestamp with time zone NOT NULL, "updated_at" timestamp with time zone NOT NULL, "maintenance_capex" numeric(5, 2) NOT NULL, "growth_capex" numeric(5, 2) NOT NULL, "asset_lifespan" integer NOT NULL CHECK ("asset_lifespan" >= 0), "capitalized_costs" numeric(15, 2) NOT NULL); (params None)
+(0.328) CREATE TABLE "financials_capex" ("id" uuid NOT NULL PRIMARY KEY, "created_at" timestamp with time zone NOT NULL, "updated_at" timestamp with time zone NOT NULL, "maintenance_capex" numeric(5, 2) NOT NULL, "growth_capex" numeric(5, 2) NOT NULL, "asset_lifespan" integer NOT NULL CHECK ("asset_lifespan" >= 0), "capitalized_costs" numeric(15, 2) NOT NULL); args=None; alias=default
+CREATE TABLE "financials_capex_assets" ("id" bigint NOT NULL PRIMARY KEY GENERATED BY DEFAULT AS IDENTITY, "capex_id" uuid NOT NULL, "asset_id" uuid NOT NULL); (params None)
+(0.422) CREATE TABLE "financials_capex_assets" ("id" bigint NOT NULL PRIMARY KEY GENERATED BY DEFAULT AS IDENTITY, "capex_id" uuid NOT NULL, "asset_id" uuid NOT NULL); args=None; alias=default
+CREATE TABLE "financials_companyinformation" ("id" uuid NOT NULL PRIMARY KEY, "created_at" timestamp with time zone NOT NULL, "updated_at" timestamp with time zone NOT NULL, "company_name" varchar(255) NOT NULL, "industry" varchar(255) NOT NULL, "company_stage" varchar(25) NOT NULL, "funding_type" varchar(25) NOT NULL, "fiscal_year_end" date NOT NULL); (params None)
+(0.375) CREATE TABLE "financials_companyinformation" ("id" uuid NOT NULL PRIMARY KEY, "created_at" timestamp with time zone NOT NULL, "updated_at" timestamp with time zone NOT NULL, "company_name" varchar(255) NOT NULL, "industry" varchar(255) NOT NULL, "company_stage" varchar(25) NOT NULL, "funding_type" varchar(25) NOT NULL, "fiscal_year_end" date NOT NULL); args=None; alias=default
+CREATE TABLE "financials_coststracture" ("id" uuid NOT NULL PRIMARY KEY, "created_at" timestamp with time zone NOT NULL, "updated_at" timestamp with time zone NOT NULL, "raw_material" numeric(15, 2) NOT NULL, "direct_labor" numeric(15, 2) NOT NULL, "man_overhead" numeric(15, 2) NOT NULL, "total_cogs" numeric(15, 2) NOT NULL, "fixed_cost" numeric(15, 2) NOT NULL, "variable_cost" numeric(15, 2) NOT NULL, "cd_raw_material" numeric(15, 2) NOT NULL, "cd_direct_labor" numeric(15, 2) NOT NULL, "cd_man_overhead" numeric(15, 2) NOT NULL); (params None)
+(0.312) CREATE TABLE "financials_coststracture" ("id" uuid NOT NULL PRIMARY KEY, "created_at" timestamp with time zone NOT NULL, "updated_at" timestamp with time zone NOT NULL, "raw_material" numeric(15, 2) NOT NULL, "direct_labor" numeric(15, 2) NOT NULL, "man_overhead" numeric(15, 2) NOT NULL, "total_cogs" numeric(15, 2) NOT NULL, "fixed_cost" numeric(15, 2) NOT NULL, "variable_cost" numeric(15, 2) NOT NULL, "cd_raw_material" numeric(15, 2) NOT NULL, "cd_direct_labor" numeric(15, 2) NOT NULL, "cd_man_overhead" numeric(15, 2) NOT NULL); args=None; alias=default
+CREATE TABLE "financials_dividendpolicy" ("id" uuid NOT NULL PRIMARY KEY, "created_at" timestamp with time zone NOT NULL, "updated_at" timestamp with time zone NOT NULL, "payout_ratio" numeric(4, 2) NOT NULL, "div_per_share" numeric(4, 2) NOT NULL, "div_growth_rt" numeric(4, 2) NOT NULL); (params None)
+(0.313) CREATE TABLE "financials_dividendpolicy" ("id" uuid NOT NULL PRIMARY KEY, "created_at" timestamp with time zone NOT NULL, "updated_at" timestamp with time zone NOT NULL, "payout_ratio" numeric(4, 2) NOT NULL, "div_per_share" numeric(4, 2) NOT NULL, "div_growth_rt" numeric(4, 2) NOT NULL); args=None; alias=default
+CREATE TABLE "financials_employeeinfo" ("id" uuid NOT NULL PRIMARY KEY, "created_at" timestamp with time zone NOT NULL, "updated_at" timestamp with time zone NOT NULL, "position" varchar(255) NOT NULL, "salary" numeric(10, 2) NOT NULL, "count" integer NOT NULL CHECK ("count" >= 0), "salary_growth_rate" numeric(5, 2) NOT NULL); (params None)
+(0.344) CREATE TABLE "financials_employeeinfo" ("id" uuid NOT NULL PRIMARY KEY, "created_at" timestamp with time zone NOT NULL, "updated_at" timestamp with time zone NOT NULL, "position" varchar(255) NOT NULL, "salary" numeric(10, 2) NOT NULL, "count" integer NOT NULL CHECK ("count" >= 0), "salary_growth_rate" numeric(5, 2) NOT NULL); args=None; alias=default
+CREATE TABLE "financials_historicalfindata" ("id" uuid NOT NULL PRIMARY KEY, "created_at" timestamp with time zone NOT NULL, "updated_at" timestamp with time zone NOT NULL, "revenue" numeric(15, 2) NOT NULL, "cogs" numeric(15, 2) NOT NULL, "salaries" numeric(15, 2) NOT NULL, "rent" numeric(15, 2) NOT NULL, "marketing" numeric(15, 2) NOT NULL, "technology" numeric(15, 2) NOT NULL, "insurance" numeric(15, 2) NOT NULL, "other" numeric(15, 2) NOT NULL, "total_operating_expenses" numeric(15, 2) NULL, "cash_equivs" numeric(15, 2) NOT NULL, "acc_receivable" numeric(15, 2) NOT NULL, "inventory" numeric(15, 2) NOT NULL, "fixed_assets" numeric(15, 2) NOT NULL, "acc_payable" numeric(15, 2) NOT NULL, "short_debt" numeric(15, 2) NOT NULL, "long_debt" numeric(15, 2) NOT NULL, "paid_in_cap" numeric(15, 2) NOT NULL, "retained_earning" numeric(15, 2) NOT NULL); (params None)
+(0.328) CREATE TABLE "financials_historicalfindata" ("id" uuid NOT NULL PRIMARY KEY, "created_at" timestamp with time zone NOT NULL, "updated_at" timestamp with time zone NOT NULL, "revenue" numeric(15, 2) NOT NULL, "cogs" numeric(15, 2) NOT NULL, "salaries" numeric(15, 2) NOT NULL, "rent" numeric(15, 2) NOT NULL, "marketing" numeric(15, 2) NOT NULL, "technology" numeric(15, 2) NOT NULL, "insurance" numeric(15, 2) NOT NULL, "other" numeric(15, 2) NOT NULL, "total_operating_expenses" numeric(15, 2) NULL, "cash_equivs" numeric(15, 2) NOT NULL, "acc_receivable" numeric(15, 2) NOT NULL, "inventory" numeric(15, 2) NOT NULL, "fixed_assets" numeric(15, 2) NOT NULL, "acc_payable" numeric(15, 2) NOT NULL, "short_debt" numeric(15, 2) NOT NULL, "long_debt" numeric(15, 2) NOT NULL, "paid_in_cap" numeric(15, 2) NOT NULL, "retained_earning" numeric(15, 2) NOT NULL); args=None; alias=default
+CREATE TABLE "financials_revenuedrivers" ("id" uuid NOT NULL PRIMARY KEY, "created_at" timestamp with time zone NOT NULL, "updated_at" timestamp with time zone NOT NULL, "average_selling_price" numeric(10, 2) NOT NULL, "units_sold" integer NOT NULL CHECK ("units_sold" >= 0)); (params None)
+(0.297) CREATE TABLE "financials_revenuedrivers" ("id" uuid NOT NULL PRIMARY KEY, "created_at" timestamp with time zone NOT NULL, "updated_at" timestamp with time zone NOT NULL, "average_selling_price" numeric(10, 2) NOT NULL, "units_sold" integer NOT NULL CHECK ("units_sold" >= 0)); args=None; alias=default
+CREATE TABLE "financials_revenuestream" ("id" uuid NOT NULL PRIMARY KEY, "created_at" timestamp with time zone NOT NULL, "updated_at" timestamp with time zone NOT NULL, "name" varchar(255) NOT NULL, "type" varchar(50) NOT NULL, "amount" numeric(10, 2) NOT NULL); (params None)
+(0.313) CREATE TABLE "financials_revenuestream" ("id" uuid NOT NULL PRIMARY KEY, "created_at" timestamp with time zone NOT NULL, "updated_at" timestamp with time zone NOT NULL, "name" varchar(255) NOT NULL, "type" varchar(50) NOT NULL, "amount" numeric(10, 2) NOT NULL); args=None; alias=default
+(0.312) 
+            SELECT
+                c.conname,
+                array(
+                    SELECT attname
+                    FROM unnest(c.conkey) WITH ORDINALITY cols(colid, arridx)
+                    JOIN pg_attribute AS ca ON cols.colid = ca.attnum
+                    WHERE ca.attrelid = c.conrelid
+                    ORDER BY cols.arridx
+                ),
+                c.contype,
+                (SELECT fkc.relname || '.' || fka.attname
+                FROM pg_attribute AS fka
+                JOIN pg_class AS fkc ON fka.attrelid = fkc.oid
+                WHERE fka.attrelid = c.confrelid AND fka.attnum = c.confkey[1]),
+                cl.reloptions
+            FROM pg_constraint AS c
+            JOIN pg_class AS cl ON c.conrelid = cl.oid
+            WHERE cl.relname = 'financials_adminexpense' AND pg_catalog.pg_table_is_visible(cl.oid)
+        ; args=['financials_adminexpense']; alias=default
+(0.313) 
+            SELECT
+                indexname,
+                array_agg(attname ORDER BY arridx),
+                indisunique,
+                indisprimary,
+                array_agg(ordering ORDER BY arridx),
+                amname,
+                exprdef,
+                s2.attoptions
+            FROM (
+                SELECT
+                    c2.relname as indexname, idx.*, attr.attname, am.amname,
+                    CASE
+                        WHEN idx.indexprs IS NOT NULL THEN
+                            pg_get_indexdef(idx.indexrelid)
+                    END AS exprdef,
+                    CASE am.amname
+                        WHEN 'btree' THEN
+                            CASE (option & 1)
+                                WHEN 1 THEN 'DESC' ELSE 'ASC'
+                            END
+                    END as ordering,
+                    c2.reloptions as attoptions
+                FROM (
+                    SELECT *
+                    FROM
+                        pg_index i,
+                        unnest(i.indkey, i.indoption)
+                            WITH ORDINALITY koi(key, option, arridx)
+                ) idx
+                LEFT JOIN pg_class c ON idx.indrelid = c.oid
+                LEFT JOIN pg_class c2 ON idx.indexrelid = c2.oid
+                LEFT JOIN pg_am am ON c2.relam = am.oid
+                LEFT JOIN
+                    pg_attribute attr ON attr.attrelid = c.oid AND attr.attnum = idx.key
+                WHERE c.relname = 'financials_adminexpense' AND pg_catalog.pg_table_is_visible(c.oid)
+            ) s2
+            GROUP BY indexname, indisunique, indisprimary, amname, exprdef, attoptions;
+        ; args=['btree', 'financials_adminexpense']; alias=default
+SET CONSTRAINTS "financials_adminexpe_employee_salary_info_19685a74_fk_financial" IMMEDIATE; ALTER TABLE "financials_adminexpense" DROP CONSTRAINT "financials_adminexpe_employee_salary_info_19685a74_fk_financial"; (params None)
+(0.328) SET CONSTRAINTS "financials_adminexpe_employee_salary_info_19685a74_fk_financial" IMMEDIATE; ALTER TABLE "financials_adminexpense" DROP CONSTRAINT "financials_adminexpe_employee_salary_info_19685a74_fk_financial"; args=None; alias=default
+ALTER TABLE "financials_adminexpense" DROP COLUMN "employee_salary_info_id" CASCADE; (params None)
+(0.297) ALTER TABLE "financials_adminexpense" DROP COLUMN "employee_salary_info_id" CASCADE; args=None; alias=default
+(0.312) 
+            SELECT
+                c.conname,
+                array(
+                    SELECT attname
+                    FROM unnest(c.conkey) WITH ORDINALITY cols(colid, arridx)
+                    JOIN pg_attribute AS ca ON cols.colid = ca.attnum
+                    WHERE ca.attrelid = c.conrelid
+                    ORDER BY cols.arridx
+                ),
+                c.contype,
+                (SELECT fkc.relname || '.' || fka.attname
+                FROM pg_attribute AS fka
+                JOIN pg_class AS fkc ON fka.attrelid = fkc.oid
+                WHERE fka.attrelid = c.confrelid AND fka.attnum = c.confkey[1]),
+                cl.reloptions
+            FROM pg_constraint AS c
+            JOIN pg_class AS cl ON c.conrelid = cl.oid
+            WHERE cl.relname = 'financials_capitalasset' AND pg_catalog.pg_table_is_visible(cl.oid)
+        ; args=['financials_capitalasset']; alias=default
+(0.469) 
+            SELECT
+                indexname,
+                array_agg(attname ORDER BY arridx),
+                indisunique,
+                indisprimary,
+                array_agg(ordering ORDER BY arridx),
+                amname,
+                exprdef,
+                s2.attoptions
+            FROM (
+                SELECT
+                    c2.relname as indexname, idx.*, attr.attname, am.amname,
+                    CASE
+                        WHEN idx.indexprs IS NOT NULL THEN
+                            pg_get_indexdef(idx.indexrelid)
+                    END AS exprdef,
+                    CASE am.amname
+                        WHEN 'btree' THEN
+                            CASE (option & 1)
+                                WHEN 1 THEN 'DESC' ELSE 'ASC'
+                            END
+                    END as ordering,
+                    c2.reloptions as attoptions
+                FROM (
+                    SELECT *
+                    FROM
+                        pg_index i,
+                        unnest(i.indkey, i.indoption)
+                            WITH ORDINALITY koi(key, option, arridx)
+                ) idx
+                LEFT JOIN pg_class c ON idx.indrelid = c.oid
+                LEFT JOIN pg_class c2 ON idx.indexrelid = c2.oid
+                LEFT JOIN pg_am am ON c2.relam = am.oid
+                LEFT JOIN
+                    pg_attribute attr ON attr.attrelid = c.oid AND attr.attnum = idx.key
+                WHERE c.relname = 'financials_capitalasset' AND pg_catalog.pg_table_is_visible(c.oid)
+            ) s2
+            GROUP BY indexname, indisunique, indisprimary, amname, exprdef, attoptions;
+        ; args=['btree', 'financials_capitalasset']; alias=default
+SET CONSTRAINTS "financials_capitalas_capital_expenditure__61cb1870_fk_financial" IMMEDIATE; ALTER TABLE "financials_capitalasset" DROP CONSTRAINT "financials_capitalas_capital_expenditure__61cb1870_fk_financial"; (params None)
+(0.359) SET CONSTRAINTS "financials_capitalas_capital_expenditure__61cb1870_fk_financial" IMMEDIATE; ALTER TABLE "financials_capitalasset" DROP CONSTRAINT "financials_capitalas_capital_expenditure__61cb1870_fk_financial"; args=None; alias=default
+ALTER TABLE "financials_capitalasset" DROP COLUMN "capital_expenditure_id" CASCADE; (params None)
+(0.297) ALTER TABLE "financials_capitalasset" DROP COLUMN "capital_expenditure_id" CASCADE; args=None; alias=default
+(0.328) 
+            SELECT
+                c.conname,
+                array(
+                    SELECT attname
+                    FROM unnest(c.conkey) WITH ORDINALITY cols(colid, arridx)
+                    JOIN pg_attribute AS ca ON cols.colid = ca.attnum
+                    WHERE ca.attrelid = c.conrelid
+                    ORDER BY cols.arridx
+                ),
+                c.contype,
+                (SELECT fkc.relname || '.' || fka.attname
+                FROM pg_attribute AS fka
+                JOIN pg_class AS fkc ON fka.attrelid = fkc.oid
+                WHERE fka.attrelid = c.confrelid AND fka.attnum = c.confkey[1]),
+                cl.reloptions
+            FROM pg_constraint AS c
+            JOIN pg_class AS cl ON c.conrelid = cl.oid
+            WHERE cl.relname = 'financials_staff' AND pg_catalog.pg_table_is_visible(cl.oid)
+        ; args=['financials_staff']; alias=default
+(0.500) 
+            SELECT
+                indexname,
+                array_agg(attname ORDER BY arridx),
+                indisunique,
+                indisprimary,
+                array_agg(ordering ORDER BY arridx),
+                amname,
+                exprdef,
+                s2.attoptions
+            FROM (
+                SELECT
+                    c2.relname as indexname, idx.*, attr.attname, am.amname,
+                    CASE
+                        WHEN idx.indexprs IS NOT NULL THEN
+                            pg_get_indexdef(idx.indexrelid)
+                    END AS exprdef,
+                    CASE am.amname
+                        WHEN 'btree' THEN
+                            CASE (option & 1)
+                                WHEN 1 THEN 'DESC' ELSE 'ASC'
+                            END
+                    END as ordering,
+                    c2.reloptions as attoptions
+                FROM (
+                    SELECT *
+                    FROM
+                        pg_index i,
+                        unnest(i.indkey, i.indoption)
+                            WITH ORDINALITY koi(key, option, arridx)
+                ) idx
+                LEFT JOIN pg_class c ON idx.indrelid = c.oid
+                LEFT JOIN pg_class c2 ON idx.indexrelid = c2.oid
+                LEFT JOIN pg_am am ON c2.relam = am.oid
+                LEFT JOIN
+                    pg_attribute attr ON attr.attrelid = c.oid AND attr.attnum = idx.key
+                WHERE c.relname = 'financials_staff' AND pg_catalog.pg_table_is_visible(c.oid)
+            ) s2
+            GROUP BY indexname, indisunique, indisprimary, amname, exprdef, attoptions;
+        ; args=['btree', 'financials_staff']; alias=default
+SET CONSTRAINTS "financials_staff_employee_salary_info_f7cf3886_fk_financial" IMMEDIATE; ALTER TABLE "financials_staff" DROP CONSTRAINT "financials_staff_employee_salary_info_f7cf3886_fk_financial"; (params None)
+(1.000) SET CONSTRAINTS "financials_staff_employee_salary_info_f7cf3886_fk_financial" IMMEDIATE; ALTER TABLE "financials_staff" DROP CONSTRAINT "financials_staff_employee_salary_info_f7cf3886_fk_financial"; args=None; alias=default
+ALTER TABLE "financials_staff" DROP COLUMN "employee_salary_info_id" CASCADE; (params None)
+(0.313) ALTER TABLE "financials_staff" DROP COLUMN "employee_salary_info_id" CASCADE; args=None; alias=default
+DROP TABLE "financials_revenueexpenses" CASCADE; (params None)
+(0.312) DROP TABLE "financials_revenueexpenses" CASCADE; args=None; alias=default
+ALTER TABLE "financials_allexpenses" ADD COLUMN "employee_info_id" uuid NOT NULL CONSTRAINT "financials_allexpens_employee_info_id_f8e1586b_fk_financial" REFERENCES "financials_employeeinfo"("id") DEFERRABLE INITIALLY DEFERRED; SET CONSTRAINTS "financials_allexpens_employee_info_id_f8e1586b_fk_financial" IMMEDIATE; (params None)
+(0.312) ALTER TABLE "financials_allexpenses" ADD COLUMN "employee_info_id" uuid NOT NULL CONSTRAINT "financials_allexpens_employee_info_id_f8e1586b_fk_financial" REFERENCES "financials_employeeinfo"("id") DEFERRABLE INITIALLY DEFERRED; SET CONSTRAINTS "financials_allexpens_employee_info_id_f8e1586b_fk_financial" IMMEDIATE; args=None; alias=default
+CREATE TABLE "financials_revenuedrivers_revenue_streams" ("id" bigint NOT NULL PRIMARY KEY GENERATED BY DEFAULT AS IDENTITY, "revenuedrivers_id" uuid NOT NULL, "revenuestream_id" uuid NOT NULL); (params None)
+(0.360) CREATE TABLE "financials_revenuedrivers_revenue_streams" ("id" bigint NOT NULL PRIMARY KEY GENERATED BY DEFAULT AS IDENTITY, "revenuedrivers_id" uuid NOT NULL, "revenuestream_id" uuid NOT NULL); args=None; alias=default
+DROP TABLE "financials_adminexpense" CASCADE; (params None)
+(0.312) DROP TABLE "financials_adminexpense" CASCADE; args=None; alias=default
+DROP TABLE "financials_capitalasset" CASCADE; (params None)
+(0.297) DROP TABLE "financials_capitalasset" CASCADE; args=None; alias=default
+DROP TABLE "financials_capitalexpenditure" CASCADE; (params None)
+(0.296) DROP TABLE "financials_capitalexpenditure" CASCADE; args=None; alias=default
+DROP TABLE "financials_employeesalaryinfo" CASCADE; (params None)
+(0.297) DROP TABLE "financials_employeesalaryinfo" CASCADE; args=None; alias=default
+DROP TABLE "financials_staff" CASCADE; (params None)
+(0.563) DROP TABLE "financials_staff" CASCADE; args=None; alias=default
+ALTER TABLE "financials_allexpenses" ADD CONSTRAINT "financials_allexpens_admin_marketing_exp__ceead0bf_fk_financial" FOREIGN KEY ("admin_marketing_exp_id") REFERENCES "financials_adminmarketingexp" ("id") DEFERRABLE INITIALLY DEFERRED; (params None)
+(0.312) ALTER TABLE "financials_allexpenses" ADD CONSTRAINT "financials_allexpens_admin_marketing_exp__ceead0bf_fk_financial" FOREIGN KEY ("admin_marketing_exp_id") REFERENCES "financials_adminmarketingexp" ("id") DEFERRABLE INITIALLY DEFERRED; args=None; alias=default
+CREATE INDEX "financials_allexpenses_admin_marketing_exp_id_ceead0bf" ON "financials_allexpenses" ("admin_marketing_exp_id"); (params None)
+(0.313) CREATE INDEX "financials_allexpenses_admin_marketing_exp_id_ceead0bf" ON "financials_allexpenses" ("admin_marketing_exp_id"); args=None; alias=default
+ALTER TABLE "financials_capex_assets" ADD CONSTRAINT "financials_capex_assets_capex_id_asset_id_2622a4d8_uniq" UNIQUE ("capex_id", "asset_id"); (params None)
+(0.312) ALTER TABLE "financials_capex_assets" ADD CONSTRAINT "financials_capex_assets_capex_id_asset_id_2622a4d8_uniq" UNIQUE ("capex_id", "asset_id"); args=None; alias=default
+ALTER TABLE "financials_capex_assets" ADD CONSTRAINT "financials_capex_ass_capex_id_96d32320_fk_financial" FOREIGN KEY ("capex_id") REFERENCES "financials_capex" ("id") DEFERRABLE INITIALLY DEFERRED; (params None)
+(0.328) ALTER TABLE "financials_capex_assets" ADD CONSTRAINT "financials_capex_ass_capex_id_96d32320_fk_financial" FOREIGN KEY ("capex_id") REFERENCES "financials_capex" ("id") DEFERRABLE INITIALLY DEFERRED; args=None; alias=default
+ALTER TABLE "financials_capex_assets" ADD CONSTRAINT "financials_capex_ass_asset_id_6136458a_fk_financial" FOREIGN KEY ("asset_id") REFERENCES "financials_asset" ("id") DEFERRABLE INITIALLY DEFERRED; (params None)
+(0.313) ALTER TABLE "financials_capex_assets" ADD CONSTRAINT "financials_capex_ass_asset_id_6136458a_fk_financial" FOREIGN KEY ("asset_id") REFERENCES "financials_asset" ("id") DEFERRABLE INITIALLY DEFERRED; args=None; alias=default
+CREATE INDEX "financials_capex_assets_capex_id_96d32320" ON "financials_capex_assets" ("capex_id"); (params None)
+(0.312) CREATE INDEX "financials_capex_assets_capex_id_96d32320" ON "financials_capex_assets" ("capex_id"); args=None; alias=default
+CREATE INDEX "financials_capex_assets_asset_id_6136458a" ON "financials_capex_assets" ("asset_id"); (params None)
+(0.313) CREATE INDEX "financials_capex_assets_asset_id_6136458a" ON "financials_capex_assets" ("asset_id"); args=None; alias=default
+CREATE INDEX "financials_allexpenses_employee_info_id_f8e1586b" ON "financials_allexpenses" ("employee_info_id"); (params None)
+(0.312) CREATE INDEX "financials_allexpenses_employee_info_id_f8e1586b" ON "financials_allexpenses" ("employee_info_id"); args=None; alias=default
+ALTER TABLE "financials_revenuedrivers_revenue_streams" ADD CONSTRAINT "financials_revenuedriver_revenuedrivers_id_revenu_4f9bda5b_uniq" UNIQUE ("revenuedrivers_id", "revenuestream_id"); (params None)
+(0.328) ALTER TABLE "financials_revenuedrivers_revenue_streams" ADD CONSTRAINT "financials_revenuedriver_revenuedrivers_id_revenu_4f9bda5b_uniq" UNIQUE ("revenuedrivers_id", "revenuestream_id"); args=None; alias=default
+ALTER TABLE "financials_revenuedrivers_revenue_streams" ADD CONSTRAINT "financials_revenuedr_revenuedrivers_id_8fdc93c9_fk_financial" FOREIGN KEY ("revenuedrivers_id") REFERENCES "financials_revenuedrivers" ("id") DEFERRABLE INITIALLY DEFERRED; (params None)
+(0.360) ALTER TABLE "financials_revenuedrivers_revenue_streams" ADD CONSTRAINT "financials_revenuedr_revenuedrivers_id_8fdc93c9_fk_financial" FOREIGN KEY ("revenuedrivers_id") REFERENCES "financials_revenuedrivers" ("id") DEFERRABLE INITIALLY DEFERRED; args=None; alias=default
+ALTER TABLE "financials_revenuedrivers_revenue_streams" ADD CONSTRAINT "financials_revenuedr_revenuestream_id_99dc2940_fk_financial" FOREIGN KEY ("revenuestream_id") REFERENCES "financials_revenuestream" ("id") DEFERRABLE INITIALLY DEFERRED; (params None)
+(0.328) ALTER TABLE "financials_revenuedrivers_revenue_streams" ADD CONSTRAINT "financials_revenuedr_revenuestream_id_99dc2940_fk_financial" FOREIGN KEY ("revenuestream_id") REFERENCES "financials_revenuestream" ("id") DEFERRABLE INITIALLY DEFERRED; args=None; alias=default
+CREATE INDEX "financials_revenuedrivers__revenuedrivers_id_8fdc93c9" ON "financials_revenuedrivers_revenue_streams" ("revenuedrivers_id"); (params None)
+(0.297) CREATE INDEX "financials_revenuedrivers__revenuedrivers_id_8fdc93c9" ON "financials_revenuedrivers_revenue_streams" ("revenuedrivers_id"); args=None; alias=default
+CREATE INDEX "financials_revenuedrivers__revenuestream_id_99dc2940" ON "financials_revenuedrivers_revenue_streams" ("revenuestream_id"); (params None)
+(0.312) CREATE INDEX "financials_revenuedrivers__revenuestream_id_99dc2940" ON "financials_revenuedrivers_revenue_streams" ("revenuestream_id"); args=None; alias=default
+(0.313) COMMIT; args=None; alias=default
+(0.312) INSERT INTO "django_migrations" ("app", "name", "applied") VALUES ('financials', '0002_adminmarketingexp_allexpenses_asset_capex_and_more', '2024-12-20T09:27:47.160241+00:00'::timestamptz) RETURNING "django_migrations"."id"; args=('financials', '0002_adminmarketingexp_allexpenses_asset_capex_and_more', datetime.datetime(2024, 12, 20, 9, 27, 47, 160241, tzinfo=datetime.timezone.utc)); alias=default
+(0.313) SELECT "django_migrations"."id", "django_migrations"."app", "django_migrations"."name", "django_migrations"."applied" FROM "django_migrations"; args=(); alias=default
+(0.313) SELECT "django_content_type"."id", "django_content_type"."app_label", "django_content_type"."model" FROM "django_content_type" WHERE "django_content_type"."app_label" = 'admin'; args=('admin',); alias=default
+(0.297) SELECT "django_content_type"."id", "django_content_type"."app_label", "django_content_type"."model" FROM "django_content_type" WHERE ("django_content_type"."app_label" = 'admin' AND "django_content_type"."model" IN ('logentry')); args=('admin', 'logentry'); alias=default
+(0.328) SELECT "auth_permission"."content_type_id", "auth_permission"."codename" FROM "auth_permission" INNER JOIN "django_content_type" ON ("auth_permission"."content_type_id" = "django_content_type"."id") WHERE "auth_permission"."content_type_id" IN (1) ORDER BY "django_content_type"."app_label" ASC, "django_content_type"."model" ASC, "auth_permission"."codename" ASC; args=(1,); alias=default
+(0.312) SELECT "django_content_type"."id", "django_content_type"."app_label", "django_content_type"."model" FROM "django_content_type" WHERE "django_content_type"."app_label" = 'admin'; args=('admin',); alias=default
+(0.297) SELECT "django_content_type"."id", "django_content_type"."app_label", "django_content_type"."model" FROM "django_content_type" WHERE "django_content_type"."app_label" = 'auth'; args=('auth',); alias=default
+(0.328) SELECT "django_content_type"."id", "django_content_type"."app_label", "django_content_type"."model" FROM "django_content_type" WHERE ("django_content_type"."app_label" = 'auth' AND "django_content_type"."model" IN ('group', 'permission')); args=('auth', 'group', 'permission'); alias=default
+(0.313) SELECT "auth_permission"."content_type_id", "auth_permission"."codename" FROM "auth_permission" INNER JOIN "django_content_type" ON ("auth_permission"."content_type_id" = "django_content_type"."id") WHERE "auth_permission"."content_type_id" IN (2, 3) ORDER BY "django_content_type"."app_label" ASC, "django_content_type"."model" ASC, "auth_permission"."codename" ASC; args=(2, 3); alias=default
+(0.328) SELECT "django_content_type"."id", "django_content_type"."app_label", "django_content_type"."model" FROM "django_content_type" WHERE "django_content_type"."app_label" = 'auth'; args=('auth',); alias=default
+(0.297) SELECT "django_content_type"."id", "django_content_type"."app_label", "django_content_type"."model" FROM "django_content_type" WHERE "django_content_type"."app_label" = 'contenttypes'; args=('contenttypes',); alias=default
+(0.453) SELECT "django_content_type"."id", "django_content_type"."app_label", "django_content_type"."model" FROM "django_content_type" WHERE ("django_content_type"."app_label" = 'contenttypes' AND "django_content_type"."model" IN ('contenttype')); args=('contenttypes', 'contenttype'); alias=default
+(0.312) SELECT "auth_permission"."content_type_id", "auth_permission"."codename" FROM "auth_permission" INNER JOIN "django_content_type" ON ("auth_permission"."content_type_id" = "django_content_type"."id") WHERE "auth_permission"."content_type_id" IN (4) ORDER BY "django_content_type"."app_label" ASC, "django_content_type"."model" ASC, "auth_permission"."codename" ASC; args=(4,); alias=default
+(0.313) SELECT "django_content_type"."id", "django_content_type"."app_label", "django_content_type"."model" FROM "django_content_type" WHERE "django_content_type"."app_label" = 'contenttypes'; args=('contenttypes',); alias=default
+(0.297) SELECT "django_content_type"."id", "django_content_type"."app_label", "django_content_type"."model" FROM "django_content_type" WHERE "django_content_type"."app_label" = 'sessions'; args=('sessions',); alias=default
+(0.375) SELECT "django_content_type"."id", "django_content_type"."app_label", "django_content_type"."model" FROM "django_content_type" WHERE ("django_content_type"."app_label" = 'sessions' AND "django_content_type"."model" IN ('session')); args=('sessions', 'session'); alias=default
+(0.297) SELECT "auth_permission"."content_type_id", "auth_permission"."codename" FROM "auth_permission" INNER JOIN "django_content_type" ON ("auth_permission"."content_type_id" = "django_content_type"."id") WHERE "auth_permission"."content_type_id" IN (5) ORDER BY "django_content_type"."app_label" ASC, "django_content_type"."model" ASC, "auth_permission"."codename" ASC; args=(5,); alias=default
+(0.313) SELECT "django_content_type"."id", "django_content_type"."app_label", "django_content_type"."model" FROM "django_content_type" WHERE "django_content_type"."app_label" = 'sessions'; args=('sessions',); alias=default
+(0.297) SELECT "django_content_type"."id", "django_content_type"."app_label", "django_content_type"."model" FROM "django_content_type" WHERE "django_content_type"."app_label" = 'token_blacklist'; args=('token_blacklist',); alias=default
+(0.312) SELECT "django_content_type"."id", "django_content_type"."app_label", "django_content_type"."model" FROM "django_content_type" WHERE ("django_content_type"."app_label" = 'token_blacklist' AND "django_content_type"."model" IN ('outstandingtoken', 'blacklistedtoken')); args=('token_blacklist', 'outstandingtoken', 'blacklistedtoken'); alias=default
+(0.297) SELECT "auth_permission"."content_type_id", "auth_permission"."codename" FROM "auth_permission" INNER JOIN "django_content_type" ON ("auth_permission"."content_type_id" = "django_content_type"."id") WHERE "auth_permission"."content_type_id" IN (6, 7) ORDER BY "django_content_type"."app_label" ASC, "django_content_type"."model" ASC, "auth_permission"."codename" ASC; args=(6, 7); alias=default
+(0.297) SELECT "django_content_type"."id", "django_content_type"."app_label", "django_content_type"."model" FROM "django_content_type" WHERE "django_content_type"."app_label" = 'token_blacklist'; args=('token_blacklist',); alias=default
+(0.312) SELECT "django_content_type"."id", "django_content_type"."app_label", "django_content_type"."model" FROM "django_content_type" WHERE "django_content_type"."app_label" = 'accounts'; args=('accounts',); alias=default
+(0.313) SELECT "django_content_type"."id", "django_content_type"."app_label", "django_content_type"."model" FROM "django_content_type" WHERE ("django_content_type"."app_label" = 'accounts' AND "django_content_type"."model" IN ('customuser')); args=('accounts', 'customuser'); alias=default
+(0.312) SELECT "auth_permission"."content_type_id", "auth_permission"."codename" FROM "auth_permission" INNER JOIN "django_content_type" ON ("auth_permission"."content_type_id" = "django_content_type"."id") WHERE "auth_permission"."content_type_id" IN (8) ORDER BY "django_content_type"."app_label" ASC, "django_content_type"."model" ASC, "auth_permission"."codename" ASC; args=(8,); alias=default
+(0.297) SELECT "django_content_type"."id", "django_content_type"."app_label", "django_content_type"."model" FROM "django_content_type" WHERE "django_content_type"."app_label" = 'accounts'; args=('accounts',); alias=default
+(0.328) SELECT "django_content_type"."id", "django_content_type"."app_label", "django_content_type"."model" FROM "django_content_type" WHERE "django_content_type"."app_label" = 'financials'; args=('financials',); alias=default
+(0.000) BEGIN; args=None; alias=default
+(0.610) INSERT INTO "django_content_type" ("app_label", "model") VALUES ('financials', 'industrymetrics'), ('financials', 'workingcapital'), ('financials', 'asset'), ('financials', 'capex'), ('financials', 'companyinformation'), ('financials', 'coststracture'), ('financials', 'dividendpolicy'), ('financials', 'historicalfindata'), ('financials', 'allexpenses'), ('financials', 'employeeinfo'), ('financials', 'adminmarketingexp'), ('financials', 'revenuedrivers'), ('financials', 'revenuestream') RETURNING "django_content_type"."id"; args=('financials', 'industrymetrics', 'financials', 'workingcapital', 'financials', 'asset', 'financials', 'capex', 'financials', 'companyinformation', 'financials', 'coststracture', 'financials', 'dividendpolicy', 'financials', 'historicalfindata', 'financials', 'allexpenses', 'financials', 'employeeinfo', 'financials', 'adminmarketingexp', 'financials', 'revenuedrivers', 'financials', 'revenuestream'); alias=default
+(0.297) COMMIT; args=None; alias=default
+(0.531) SELECT "django_content_type"."id", "django_content_type"."app_label", "django_content_type"."model" FROM "django_content_type" WHERE ("django_content_type"."app_label" = 'financials' AND "django_content_type"."model" IN ('adminmarketingexp', 'revenuedrivers', 'companyinformation', 'employeeinfo', 'revenuestream', 'asset', 'historicalfindata', 'allexpenses', 'workingcapital', 'dividendpolicy', 'industrymetrics', 'capex', 'coststracture')); args=('financials', 'adminmarketingexp', 'revenuedrivers', 'companyinformation', 'employeeinfo', 'revenuestream', 'asset', 'historicalfindata', 'allexpenses', 'workingcapital', 'dividendpolicy', 'industrymetrics', 'capex', 'coststracture'); alias=default
+(0.312) SELECT "auth_permission"."content_type_id", "auth_permission"."codename" FROM "auth_permission" INNER JOIN "django_content_type" ON ("auth_permission"."content_type_id" = "django_content_type"."id") WHERE "auth_permission"."content_type_id" IN (9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21) ORDER BY "django_content_type"."app_label" ASC, "django_content_type"."model" ASC, "auth_permission"."codename" ASC; args=(9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21); alias=default
+(0.000) BEGIN; args=None; alias=default
+(0.657) INSERT INTO "auth_permission" ("name", "content_type_id", "codename") VALUES ('Can add industry metrics', 9, 'add_industrymetrics'), ('Can change industry metrics', 9, 'change_industrymetrics'), ('Can delete industry metrics', 9, 'delete_industrymetrics'), ('Can view industry metrics', 9, 'view_industrymetrics'), ('Can add working capital', 10, 'add_workingcapital'), ('Can change working capital', 10, 'change_workingcapital'), ('Can delete working capital', 10, 'delete_workingcapital'), ('Can view working capital', 10, 'view_workingcapital'), ('Can add asset', 11, 'add_asset'), ('Can change asset', 11, 'change_asset'), ('Can delete asset', 11, 'delete_asset'), ('Can view asset', 11, 'view_asset'), ('Can add capex', 12, 'add_capex'), ('Can change capex', 12, 'change_capex'), ('Can delete capex', 12, 'delete_capex'), ('Can view capex', 12, 'view_capex'), ('Can add company information', 13, 'add_companyinformation'), ('Can change company information', 13, 'change_companyinformation'), ('Can delete company information', 13, 'delete_companyinformation'), ('Can view company information', 13, 'view_companyinformation'), ('Can add cost stracture', 14, 'add_coststracture'), ('Can change cost stracture', 14, 'change_coststracture'), ('Can delete cost stracture', 14, 'delete_coststracture'), ('Can view cost stracture', 14, 'view_coststracture'), ('Can add dividend policy', 15, 'add_dividendpolicy'), ('Can change dividend policy', 15, 'change_dividendpolicy'), ('Can delete dividend policy', 15, 'delete_dividendpolicy'), ('Can view dividend policy', 15, 'view_dividendpolicy'), ('Can add historical fin data', 16, 'add_historicalfindata'), ('Can change historical fin data', 16, 'change_historicalfindata'), ('Can delete historical fin data', 16, 'delete_historicalfindata'), ('Can view historical fin data', 16, 'view_historicalfindata'), ('Can add all expenses', 17, 'add_allexpenses'), ('Can change all expenses', 17, 'change_allexpenses'), ('Can delete all expenses', 17, 'delete_allexpenses'), ('Can view all expenses', 17, 'view_allexpenses'), ('Can add employee info', 18, 'add_employeeinfo'), ('Can change employee info', 18, 'change_employeeinfo'), ('Can delete employee info', 18, 'delete_employeeinfo'), ('Can view employee info', 18, 'view_employeeinfo'), ('Can add admin marketing exp', 19, 'add_adminmarketingexp'), ('Can change admin marketing exp', 19, 'change_adminmarketingexp'), ('Can delete admin marketing exp', 19, 'delete_adminmarketingexp'), ('Can view admin marketing exp', 19, 'view_adminmarketingexp'), ('Can add revenue drivers', 20, 'add_revenuedrivers'), ('Can change revenue drivers', 20, 'change_revenuedrivers'), ('Can delete revenue drivers', 20, 'delete_revenuedrivers'), ('Can view revenue drivers', 20, 'view_revenuedrivers'), ('Can add revenue stream', 21, 'add_revenuestream'), ('Can change revenue stream', 21, 'change_revenuestream'), ('Can delete revenue stream', 21, 'delete_revenuestream'), ('Can view revenue stream', 21, 'view_revenuestream') RETURNING "auth_permission"."id"; args=('Can add industry metrics', 9, 'add_industrymetrics', 'Can change industry metrics', 9, 'change_industrymetrics', 'Can delete industry metrics', 9, 'delete_industrymetrics', 'Can view industry metrics', 9, 'view_industrymetrics', 'Can add working capital', 10, 'add_workingcapital', 'Can change working capital', 10, 'change_workingcapital', 'Can delete working capital', 10, 'delete_workingcapital', 'Can view working capital', 10, 'view_workingcapital', 'Can add asset', 11, 'add_asset', 'Can change asset', 11, 'change_asset', 'Can delete asset', 11, 'delete_asset', 'Can view asset', 11, 'view_asset', 'Can add capex', 12, 'add_capex', 'Can change capex', 12, 'change_capex', 'Can delete capex', 12, 'delete_capex', 'Can view capex', 12, 'view_capex', 'Can add company information', 13, 'add_companyinformation', 'Can change company information', 13, 'change_companyinformation', 'Can delete company information', 13, 'delete_companyinformation', 'Can view company information', 13, 'view_companyinformation', 'Can add cost stracture', 14, 'add_coststracture', 'Can change cost stracture', 14, 'change_coststracture', 'Can delete cost stracture', 14, 'delete_coststracture', 'Can view cost stracture', 14, 'view_coststracture', 'Can add dividend policy', 15, 'add_dividendpolicy', 'Can change dividend policy', 15, 'change_dividendpolicy', 'Can delete dividend policy', 15, 'delete_dividendpolicy', 'Can view dividend policy', 15, 'view_dividendpolicy', 'Can add historical fin data', 16, 'add_historicalfindata', 'Can change historical fin data', 16, 'change_historicalfindata', 'Can delete historical fin data', 16, 'delete_historicalfindata', 'Can view historical fin data', 16, 'view_historicalfindata', 'Can add all expenses', 17, 'add_allexpenses', 'Can change all expenses', 17, 'change_allexpenses', 'Can delete all expenses', 17, 'delete_allexpenses', 'Can view all expenses', 17, 'view_allexpenses', 'Can add employee info', 18, 'add_employeeinfo', 'Can change employee info', 18, 'change_employeeinfo', 'Can delete employee info', 18, 'delete_employeeinfo', 'Can view employee info', 18, 'view_employeeinfo', 'Can add admin marketing exp', 19, 'add_adminmarketingexp', 'Can change admin marketing exp', 19, 'change_adminmarketingexp', 'Can delete admin marketing exp', 19, 'delete_adminmarketingexp', 'Can view admin marketing exp', 19, 'view_adminmarketingexp', 'Can add revenue drivers', 20, 'add_revenuedrivers', 'Can change revenue drivers', 20, 'change_revenuedrivers', 'Can delete revenue drivers', 20, 'delete_revenuedrivers', 'Can view revenue drivers', 20, 'view_revenuedrivers', 'Can add revenue stream', 21, 'add_revenuestream', 'Can change revenue stream', 21, 'change_revenuestream', 'Can delete revenue stream', 21, 'delete_revenuestream', 'Can view revenue stream', 21, 'view_revenuestream'); alias=default
+(0.296) COMMIT; args=None; alias=default
+(0.297) SELECT "django_content_type"."id", "django_content_type"."app_label", "django_content_type"."model" FROM "django_content_type" WHERE "django_content_type"."app_label" = 'financials'; args=('financials',); alias=default
