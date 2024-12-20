@@ -37,7 +37,7 @@ class RevenueStreamSerializer(BaseModelSerializer):
 
 
 class RevenueDriversSerializer(BaseModelSerializer):
-    revenue_streams = RevenueStreamSerializer(many=True, read_only=True)
+    revenue_streams = RevenueStreamSerializer(many=True)
 
     class Meta:
         model = RevenueDrivers
@@ -78,7 +78,7 @@ class AllExpensesSerializer(BaseModelSerializer):
     class Meta:
         model = AllExpenses
         fields = BaseModelSerializer.Meta.fields + [
-            'average_selling_price', 'units_sold', 'employee_info', 'admin_marketing_exp'
+            'employee_info', 'average_selling_price', 'units_sold', 'admin_marketing_exp'
         ]
 
 class AssetSerializer(BaseModelSerializer):
@@ -90,7 +90,7 @@ class AssetSerializer(BaseModelSerializer):
 
 
 class CapexSerializer(BaseModelSerializer):
-    assets = AssetSerializer(many=True, read_only=True)
+    assets = AssetSerializer(many=True)
 
     class Meta:
         model = Capex
