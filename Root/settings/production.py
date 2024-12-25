@@ -41,13 +41,12 @@ LOGGING = {
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # CORS settings: Allow your frontend domain to access the backend
-#INSTALLED_APPS += ['corsheaders']
-#MIDDLEWARE.insert(0, 'corsheaders.middleware.CorsMiddleware')
 
-# CORS settings: Allow frontend domain (replace with your actual frontend URL)
-CORS_ALLOWED_ORIGINS = [
-    "https://finarchitect.netlify.app",  # Allowing frontend domain hosted on Netlify
-]
+# CORS settings: Allow frontend domain.
+#CORS_ALLOWED_ORIGINS = [
+#    "https://finarchitect.netlify.app",  # Allowing frontend domain hosted on Netlify]
+CRS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
 
 # Secure cookies: Ensure CSRF and session cookies are transmitted securely over HTTPS
 CSRF_COOKIE_SECURE = True
