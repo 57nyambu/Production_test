@@ -45,6 +45,8 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 # CORS settings: Allow frontend domain.
 #CORS_ALLOWED_ORIGINS = [
 #    "https://finarchitect.netlify.app",  # Allowing frontend domain hosted on Netlify]
+ALLOWED_HOSTS = ['finarchitect.onrender.com', 'https://finarchitect.netlify.app', '127.0.0.1']
+
 CRS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
