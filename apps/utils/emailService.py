@@ -2,7 +2,6 @@ import resend
 from Root.settings import base
 
 resend.api_key = base.RESEND_KEY
-#user_data={'email':'mwakionyambu57@gmail.com', 'first_name':'Tom5',}
 
 def welcomeEmail(user):
     params: resend.Emails.SendParams = {

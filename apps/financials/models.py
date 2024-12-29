@@ -1,9 +1,11 @@
 from django.db import models
 import uuid
+from apps.accounts.models import CustomUser
 
 # Base Model with UUID
 class BaseModel(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -81,8 +83,8 @@ class AdminMarketingExp(BaseModel):
 class AllExpenses(BaseModel):
     average_selling_price = models.DecimalField(max_digits=10, decimal_places=2)
     units_sold = models.PositiveIntegerField()
-    employee_info = models.ForeignKey(EmployeeInfo, on_delete=models.CASCADE)
-    admin_marketing_exp = models.ForeignKey(AdminMarketingExp, on_delete=models.CASCADE)
+    employee_info = models.ManyToManyField(EmployeeInfo)
+    admin_marketing_exp = models.ManyToManyField(AdminMarketingExp)
 
     def __str__(self):
         return f"All Expenses (ASP: {self.average_selling_price}, Units Sold: {self.units_sold})"
@@ -161,4 +163,3 @@ class HistoricalFinData(BaseModel):
     # Equity
     paid_in_cap = models.DecimalField(max_digits=15, decimal_places=2)
     retained_earning = models.DecimalField(max_digits=15, decimal_places=2)
-
