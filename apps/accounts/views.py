@@ -1,14 +1,20 @@
 from rest_framework.views import APIView
+from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.response import Response
-from rest_framework import status, permissions
+from rest_framework import status, permissions, viewsets
 from rest_framework.permissions import IsAuthenticated
-from .serializers import CustomUserSerializer, LoginSerializer, PasswordResetSerializer
+from .serializers import (
+    CustomUserSerializer, 
+    LoginSerializer, 
+    PasswordResetSerializer, 
+    AdminUserDetailSerializer,)
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.exceptions import InvalidToken
 from apps.utils.emailService import welcomeEmail
 from django.views.generic.base import TemplateView
 import logging
+from .models import CustomUser
 
 logger = logging.getLogger(__name__)
 
@@ -160,3 +166,16 @@ class RetrieveUserDataView(APIView):
             'data': data,
             'message': "User data retrieved successfully."
         }, status=status.HTTP_200_OK)
+
+
+class IsAdminUser(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user.is_authenticated and request.user.is_staff or request.user.is_admin
+
+class AdminUserViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = CustomUser.objects.all().select_related('subscription', 'subscription__plan')
+    serializer_class = AdminUserDetailSerializer
+    permission_classes = [IsAdminUser]
+    filter_backends = [SearchFilter, OrderingFilter]
+    search_fields = ['email', 'first_name', 'last_name']
+    ordering_fields = ['date_joined', 'email', 'subscription__plan__name']

@@ -5,7 +5,8 @@ from .views import (
     LogoutView, 
     TestProtectedView, 
     WelcomeView, 
-    UpdateUserView
+    UpdateUserView,
+    AdminUserViewSet
 ) 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -23,4 +24,5 @@ urlpatterns = [
     path('logout/', LogoutView.as_view(), name='logout'),
     path('update-profile/', UpdateUserView.as_view(), name='update-profile'),
     path('protected/', TestProtectedView.as_view(), name='protected'),
+    path('user-details/', AdminUserViewSet.as_view(), name='user-details'),
 ]

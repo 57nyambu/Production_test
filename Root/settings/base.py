@@ -31,10 +31,12 @@ INSTALLED_APPS = [
     'corsheaders',
     'apps.accounts',
     'apps.financials',
+    'apps.subscriptions',
 
 ]
 
 REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.SessionAuthentication',
@@ -122,6 +124,12 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Subscription API',
+    'DESCRIPTION': 'API for managing subscriptions and plans.',
+    'VERSION': '1.0.0',
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/

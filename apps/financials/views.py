@@ -4,6 +4,8 @@ from .serializers import CombinedSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status, generics
+from apps.subscriptions.permissions import HasActiveSubscription
+
 
 class BaseCreateAPIView(generics.CreateAPIView):
     """
@@ -88,9 +90,8 @@ class BaseUpdateAPIView(generics.UpdateAPIView):
             )
 
 
-
 class CombinedCreateAPIView(BaseCreateAPIView):
-    permission_classes = [IsAuthenticated]  # Ensure only authenticated users can access
+    permission_classes = [IsAuthenticated, HasActiveSubscription]  # Ensure only authenticated users can access
     serializer_class = CombinedSerializer
 
     def create(self, request, *args, **kwargs):

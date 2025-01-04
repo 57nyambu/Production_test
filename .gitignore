@@ -8,3 +8,5 @@ __pycache__/
 models.txt
 .gitattributes
 payload.txt
+doc.txt
+.gitignore

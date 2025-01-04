@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import CustomUser
+from apps.subscriptions.models import Subscription
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode 
@@ -80,3 +81,19 @@ class UpdateUserSerializer(serializers.ModelSerializer):
                 setattr(instance, attr, value)
         instance.save()
         return instance
+
+
+class AdminUserSubscriptionSerializer(serializers.ModelSerializer):
+    plan_name = serializers.CharField(source='plan.name')
+    plan_price = serializers.DecimalField(source='plan.price', max_digits=10, decimal_places=2)
+    
+    class Meta:
+        model = Subscription
+        fields = ['plan_name', 'plan_price', 'is_active', 'start_date', 'end_date']
+
+class AdminUserDetailSerializer(serializers.ModelSerializer):
+    subscription = AdminUserSubscriptionSerializer(read_only=True)
+    
+    class Meta:
+        model = CustomUser
+        fields = ['first_name', 'last_name', 'email', 'company', 'date_joined', 'last_login', 'is_active', 'subscription']
