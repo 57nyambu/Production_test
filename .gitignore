@@ -10,3 +10,4 @@ models.txt
 payload.txt
 doc.txt
 .gitignore
+debug.log
