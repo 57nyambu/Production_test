@@ -5,167 +5,188 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status, generics
 from apps.subscriptions.permissions import HasActiveSubscription
+from rest_framework.exceptions import ValidationError
+from django.db import transaction
+from typing import Dict, Any
 
 
-class BaseCreateAPIView(generics.CreateAPIView):
+class CombinedCreateUpdateAPIView(generics.GenericAPIView):
     """
-    A base class for CreateAPIView that standardizes the response format
-    and provides flexibility for subclasses.
-    """
-    success_message = "Data saved successfully."
-    failure_message = "Failed to save data."
-
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid():
-            try:
-                instance = serializer.save()
-                response_data = {
-                    "success": True,
-                    "message": self.success_message,
-                    "data": {
-                        "modelId": str(instance.id),  #model identifier
-                        **serializer.data,           # All saved data
-                    },
-                }
-                return Response(response_data, status=status.HTTP_201_CREATED)
-            except Exception as e:
-                # unexpected sneaky MFng errors during save
-                return Response(
-                    {
-                        "success": False,
-                        "message": f"Unexpected error: {str(e)}",
-                        "data": None,
-                    },
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                )
-        else:
-            return Response(
-                {
-                    "success": False,
-                    "message": self.failure_message,
-                    "data": serializer.errors,
-                },
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-
-class BaseUpdateAPIView(generics.UpdateAPIView):
-    """
-    A base class for UpdateAPIView that standardizes the response format.
-    """
-    def update(self, request, *args, **kwargs):
-        partial = kwargs.pop('partial', False)
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
-
-        if serializer.is_valid():
-            try:
-                self.perform_update(serializer)
-                return Response(
-                    {
-                        "success": True,
-                        "message": "Data updated successfully.",
-                        "data": serializer.data,  # Updated data
-                    },
-                    status=status.HTTP_200_OK,
-                )
-            except Exception as e:
-                return Response(
-                    {
-                        "success": False,
-                        "message": f"An error occurred during update: {str(e)}",
-                        "data": None,
-                    },
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                )
-        else:
-            return Response(
-                {
-                    "success": False,
-                    "message": "Validation failed.",
-                    "data": serializer.errors,
-                },
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-
-class CombinedCreateAPIView(BaseCreateAPIView):
-    permission_classes = [IsAuthenticated, HasActiveSubscription]  # Ensure only authenticated users can access
-    serializer_class = CombinedSerializer
-
-    def create(self, request, *args, **kwargs):
-        # Include the logged-in user in the data
-        user = request.user
-        data = request.data.copy()  # Make a mutable copy of the request data
-
-        # Inject user information into the serializer's data
-        for key in self.serializer_class._declared_fields.keys():
-            if isinstance(data.get(key), dict):  # Ensure it's a dict for nested serializers
-                data[key]['user'] = user.id
-
-        serializer = self.get_serializer(data=data)
-
-        if serializer.is_valid():
-            instance_mapping = serializer.save()
-
-            response_data = {
-                "success": True,
-                "message": "Data saved successfully.",
-                "data": {
-                    "modelIds": {key: str(instance.id) for key, instance in instance_mapping.items()},
-                    **serializer.data,
-                },
-            }
-
-            return Response(response_data, status=status.HTTP_201_CREATED)
-
-        return Response(
-            {
-                "success": False,
-                "message": "Failed to save data.",
-                "data": serializer.errors,
-            },
-            status=status.HTTP_400_BAD_REQUEST,
-        )
-    
-
-class CombinedUpdateAPIView(BaseUpdateAPIView):
-    """
-    Handles display and update of combined model data.
+    Enhanced endpoint for creating, updating, and retrieving combined model data.
+    Implements atomic transactions and efficient database queries.
     """
     permission_classes = [IsAuthenticated]
     serializer_class = CombinedSerializer
+    
+    # Response messages as class constants
+    MESSAGES = {
+        'created': "Data saved successfully.",
+        'updated': "Data updated successfully.",
+        'fetched': "Data fetched successfully.",
+        'exists': "Resource already exists. Use PUT to update the resource.",
+        'failed': "Operation failed.",
+    }
 
-    def get(self, request, *args, **kwargs):
+    def get_queryset(self):
         """
-        Fetch and display existing instance data for all models.
+        Get queryset for all related models in a single database query.
         """
-        # Preload instances based on request or default logic
-        instance_mapping = self.get_instance_mapping_for_display(kwargs)
-        
-        # Serialize the preloaded data
-        serializer = self.get_serializer(instance_mapping)
-        
+        return {
+            model_key: self.serializer_class._declared_fields[model_key].Meta.model.objects.filter(
+                user=self.request.user
+            )
+            for model_key in self.serializer_class._declared_fields
+        }
+
+    def create_response(self, success: bool, message: str, data: Any = None, 
+                       status_code: int = status.HTTP_200_OK) -> Response:
+        """
+        Standardized response creation method.
+        """
         return Response(
             {
-                "success": True,
-                "message": "Data fetched successfully.",
-                "data": serializer.data,
+                'success': success,
+                'message': message,
+                'data': data,
             },
-            status=status.HTTP_200_OK,
+            status=status_code
         )
 
-    def get_instance_mapping_for_display(self, kwargs):
+    def get(self, request, *args, **kwargs) -> Response:
         """
-        Custom logic to fetch and return all relevant instances for display.
+        Efficiently fetch existing instance data for all models using select_related.
         """
-        # Example logic: Fetch instances by IDs in kwargs or default to user's related data
-        instance_mapping = {}
-        for model_key in self.serializer_class._declared_fields.keys():
-            model_class = self.serializer_class._declared_fields[model_key].Meta.model
-            try:
-                instance_mapping[model_key] = model_class.objects.filter(user=self.request.user).first()
-            except model_class.DoesNotExist:
-                continue
-        return instance_mapping
+        try:
+            instance_mapping = {
+                key: queryset.select_related().first()
+                for key, queryset in self.get_queryset().items()
+            }
+            serializer = self.get_serializer(instance_mapping)
+            return self.create_response(True, self.MESSAGES['fetched'], serializer.data)
+        except Exception as e:
+            return self.create_response(
+                False, 
+                f"Error fetching data: {str(e)}", 
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    def resource_exists(self) -> bool:
+        """
+        Efficiently check resource existence using exists() query.
+        """
+        return any(
+            queryset.exists()
+            for queryset in self.get_queryset().values()
+        )
+
+    @transaction.atomic
+    def post(self, request, *args, **kwargs) -> Response:
+        """
+        Handle create operation with atomic transaction.
+        """
+        if self.resource_exists():
+            return self.create_response(
+                False,
+                self.MESSAGES['exists'],
+                status_code=status.HTTP_400_BAD_REQUEST
+            )
+
+        serializer = self.get_serializer(data=self.prepare_data(request.data))
+        
+        try:
+            if not serializer.is_valid():
+                return self.create_response(
+                    False,
+                    self.MESSAGES['failed'],
+                    serializer.errors,
+                    status_code=status.HTTP_400_BAD_REQUEST
+                )
+
+            instance_mapping = serializer.save()
+            response_data = {
+                'modelIds': {
+                    key: str(instance.id) 
+                    for key, instance in instance_mapping.items()
+                },
+                **serializer.data
+            }
+            return self.create_response(
+                True,
+                self.MESSAGES['created'],
+                response_data,
+                status_code=status.HTTP_201_CREATED
+            )
+
+        except ValidationError as e:
+            return self.create_response(
+                False,
+                str(e),
+                status_code=status.HTTP_400_BAD_REQUEST
+            )
+        except Exception as e:
+            return self.create_response(
+                False,
+                f"Unexpected error: {str(e)}",
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    @transaction.atomic
+    def put(self, request, *args, **kwargs) -> Response:
+        """
+        Handle update operation with atomic transaction.
+        """
+        try:
+            instance_mapping = {
+                key: queryset.select_for_update().first()
+                for key, queryset in self.get_queryset().items()
+            }
+            
+            if not any(instance_mapping.values()):
+                return self.create_response(
+                    False,
+                    "No resources found to update.",
+                    status_code=status.HTTP_404_NOT_FOUND
+                )
+
+            serializer = self.get_serializer(
+                instance_mapping,
+                data=self.prepare_data(request.data),
+                partial=kwargs.get('partial', False)
+            )
+
+            if not serializer.is_valid():
+                return self.create_response(
+                    False,
+                    self.MESSAGES['failed'],
+                    serializer.errors,
+                    status_code=status.HTTP_400_BAD_REQUEST
+                )
+
+            serializer.save()
+            return self.create_response(True, self.MESSAGES['updated'], serializer.data)
+
+        except ValidationError as e:
+            return self.create_response(
+                False,
+                str(e),
+                status_code=status.HTTP_400_BAD_REQUEST
+            )
+        except Exception as e:
+            return self.create_response(
+                False,
+                f"Unexpected error: {str(e)}",
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    def prepare_data(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Prepare request data by injecting user ID into nested serializers.
+        """
+        prepared_data = data.copy()
+        user_id = self.request.user.id
+        
+        for key, field in self.serializer_class._declared_fields.items():
+            if isinstance(prepared_data.get(key), dict):
+                prepared_data[key]['user'] = user_id
+                
+        return prepared_data

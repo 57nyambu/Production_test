@@ -1,8 +1,13 @@
 from django.urls import path
-from .views import CombinedCreateAPIView, CombinedUpdateAPIView
+#from rest_framework.documentation import include_docs_urls
+from .views import CombinedCreateUpdateAPIView
+
 
 urlpatterns = [
-    # RevenueExpenses URLs
-    path('models-create/', CombinedCreateAPIView.as_view(), name='models-create'),
-    path('models-update/', CombinedUpdateAPIView.as_view(), name='models-update'),
+    # Main endpoint for all combined data operations (GET, POST, PUT)
+    path(
+        'combined-resource/',  # Clean, descriptive URL
+        CombinedCreateUpdateAPIView.as_view(),
+        name='combined-resource'
+    )
 ]
