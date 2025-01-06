@@ -25,8 +25,16 @@ class RequiredFieldsMixin:
 
 # Serializers
 class BaseModelSerializer(serializers.ModelSerializer):
+    # Explicitly declare user_id if you want to expose it
+    user_id = serializers.PrimaryKeyRelatedField(
+        source='user',  # Maps to the `user` field in the model
+        read_only=True  # Prevents direct modification
+    )
+
     class Meta:
-        fields = ['id', 'created_at', 'updated_at']
+        fields = ['id', 'user_id', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'created_at', 'updated_at']  # Prevent modification of these fields
+
 
 
 class CompanyInformationSerializer(BaseModelSerializer):
