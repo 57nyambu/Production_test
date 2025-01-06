@@ -179,11 +179,10 @@ class CombinedCreateUpdateAPIView(generics.GenericAPIView):
             )
 
     def prepare_data(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Prepare request data by injecting user ID into nested serializers.
-        """
         prepared_data = data.copy()
         user_id = self.request.user.id
+        
+        prepared_data['user'] = user_id
         
         for key, field in self.serializer_class._declared_fields.items():
             if isinstance(prepared_data.get(key), dict):
