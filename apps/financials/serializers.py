@@ -217,25 +217,22 @@ class CombinedSerializer(serializers.Serializer):
         related_field.set(nested_instances)
 
     def _handle_instance_creation(self, key: str, data: Dict[str, Any]) -> Model:
-        """
-        Handle creation of a single model instance with its nested relationships.
-        """
         model_class, serializer = self._get_model_and_serializer(key)
+        
+        # Ensure user is in the data
+        if 'user' not in data:
+            raise serializers.ValidationError(f"User field missing for {key}")
 
         if isinstance(data, dict) and any(isinstance(v, list) for v in data.values()):
             nested_data, nested_fields = self._handle_nested_data(data)
-            
-            # Create main instance
-            instance = model_class.objects.create(**nested_data)
-            
-            # Create and set nested instances
+            instance = model_class.objects.create(**nested_data)  # user will be included in nested_data
             nested_instances = self._create_nested_instances(nested_fields, serializer)
             for field_name, related_instances in nested_instances.items():
                 self._update_nested_relationships(instance, related_instances, field_name)
-            
             return instance
-        
-        return model_class.objects.create(**data)
+    
+        return model_class.objects.create(**data)  # user will be in data
+    
 
     def _handle_instance_update(self, instance: Model, data: Dict[str, Any], serializer: serializers.Serializer):
         """
