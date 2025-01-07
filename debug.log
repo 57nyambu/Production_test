@@ -22620,3 +22620,220 @@ File C:\Users\xc\Desktop\Finarchitect\venv\Lib\site-packages\django\db\models\sq
 (0.297) SELECT "django_content_type"."id", "django_content_type"."app_label", "django_content_type"."model" FROM "django_content_type" WHERE ("django_content_type"."app_label" = 'subscriptions' AND "django_content_type"."model" IN ('subscription', 'plan')); args=('subscriptions', 'subscription', 'plan'); alias=default
 (0.297) SELECT "auth_permission"."content_type_id", "auth_permission"."codename" FROM "auth_permission" INNER JOIN "django_content_type" ON ("auth_permission"."content_type_id" = "django_content_type"."id") WHERE "auth_permission"."content_type_id" IN (22, 23) ORDER BY "django_content_type"."app_label" ASC, "django_content_type"."model" ASC, "auth_permission"."codename" ASC; args=(22, 23); alias=default
 (0.297) SELECT "django_content_type"."id", "django_content_type"."app_label", "django_content_type"."model" FROM "django_content_type" WHERE "django_content_type"."app_label" = 'subscriptions'; args=('subscriptions',); alias=default
+(0.328) 
+            SELECT
+                c.relname,
+                CASE
+                    WHEN c.relispartition THEN 'p'
+                    WHEN c.relkind IN ('m', 'v') THEN 'v'
+                    ELSE 't'
+                END,
+                obj_description(c.oid, 'pg_class')
+            FROM pg_catalog.pg_class c
+            LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+            WHERE c.relkind IN ('f', 'm', 'p', 'r', 'v')
+                AND n.nspname NOT IN ('pg_catalog', 'pg_toast')
+                AND pg_catalog.pg_table_is_visible(c.oid)
+        ; args=None; alias=default
+(0.563) SELECT "django_migrations"."id", "django_migrations"."app", "django_migrations"."name", "django_migrations"."applied" FROM "django_migrations"; args=(); alias=default
+(0.922) 
+            SELECT
+                c.relname,
+                CASE
+                    WHEN c.relispartition THEN 'p'
+                    WHEN c.relkind IN ('m', 'v') THEN 'v'
+                    ELSE 't'
+                END,
+                obj_description(c.oid, 'pg_class')
+            FROM pg_catalog.pg_class c
+            LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+            WHERE c.relkind IN ('f', 'm', 'p', 'r', 'v')
+                AND n.nspname NOT IN ('pg_catalog', 'pg_toast')
+                AND pg_catalog.pg_table_is_visible(c.oid)
+        ; args=None; alias=default
+(0.312) SELECT "django_migrations"."id", "django_migrations"."app", "django_migrations"."name", "django_migrations"."applied" FROM "django_migrations"; args=(); alias=default
+(0.859) 
+            SELECT
+                c.relname,
+                CASE
+                    WHEN c.relispartition THEN 'p'
+                    WHEN c.relkind IN ('m', 'v') THEN 'v'
+                    ELSE 't'
+                END,
+                obj_description(c.oid, 'pg_class')
+            FROM pg_catalog.pg_class c
+            LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+            WHERE c.relkind IN ('f', 'm', 'p', 'r', 'v')
+                AND n.nspname NOT IN ('pg_catalog', 'pg_toast')
+                AND pg_catalog.pg_table_is_visible(c.oid)
+        ; args=None; alias=default
+(0.000) BEGIN; args=None; alias=default
+ALTER TABLE "subscriptions_plan" ALTER COLUMN "period" DROP NOT NULL; (params None)
+(0.750) ALTER TABLE "subscriptions_plan" ALTER COLUMN "period" DROP NOT NULL; args=None; alias=default
+(0.500) 
+            SELECT
+                c.conname,
+                array(
+                    SELECT attname
+                    FROM unnest(c.conkey) WITH ORDINALITY cols(colid, arridx)
+                    JOIN pg_attribute AS ca ON cols.colid = ca.attnum
+                    WHERE ca.attrelid = c.conrelid
+                    ORDER BY cols.arridx
+                ),
+                c.contype,
+                (SELECT fkc.relname || '.' || fka.attname
+                FROM pg_attribute AS fka
+                JOIN pg_class AS fkc ON fka.attrelid = fkc.oid
+                WHERE fka.attrelid = c.confrelid AND fka.attnum = c.confkey[1]),
+                cl.reloptions
+            FROM pg_constraint AS c
+            JOIN pg_class AS cl ON c.conrelid = cl.oid
+            WHERE cl.relname = 'subscriptions_subscription' AND pg_catalog.pg_table_is_visible(cl.oid)
+        ; args=['subscriptions_subscription']; alias=default
+(0.500) 
+            SELECT
+                indexname,
+                array_agg(attname ORDER BY arridx),
+                indisunique,
+                indisprimary,
+                array_agg(ordering ORDER BY arridx),
+                amname,
+                exprdef,
+                s2.attoptions
+            FROM (
+                SELECT
+                    c2.relname as indexname, idx.*, attr.attname, am.amname,
+                    CASE
+                        WHEN idx.indexprs IS NOT NULL THEN
+                            pg_get_indexdef(idx.indexrelid)
+                    END AS exprdef,
+                    CASE am.amname
+                        WHEN 'btree' THEN
+                            CASE (option & 1)
+                                WHEN 1 THEN 'DESC' ELSE 'ASC'
+                            END
+                    END as ordering,
+                    c2.reloptions as attoptions
+                FROM (
+                    SELECT *
+                    FROM
+                        pg_index i,
+                        unnest(i.indkey, i.indoption)
+                            WITH ORDINALITY koi(key, option, arridx)
+                ) idx
+                LEFT JOIN pg_class c ON idx.indrelid = c.oid
+                LEFT JOIN pg_class c2 ON idx.indexrelid = c2.oid
+                LEFT JOIN pg_am am ON c2.relam = am.oid
+                LEFT JOIN
+                    pg_attribute attr ON attr.attrelid = c.oid AND attr.attnum = idx.key
+                WHERE c.relname = 'subscriptions_subscription' AND pg_catalog.pg_table_is_visible(c.oid)
+            ) s2
+            GROUP BY indexname, indisunique, indisprimary, amname, exprdef, attoptions;
+        ; args=['btree', 'subscriptions_subscription']; alias=default
+SET CONSTRAINTS "subscriptions_subscr_plan_id_2c895107_fk_subscript" IMMEDIATE; ALTER TABLE "subscriptions_subscription" DROP CONSTRAINT "subscriptions_subscr_plan_id_2c895107_fk_subscript"; (params None)
+(0.656) SET CONSTRAINTS "subscriptions_subscr_plan_id_2c895107_fk_subscript" IMMEDIATE; ALTER TABLE "subscriptions_subscription" DROP CONSTRAINT "subscriptions_subscr_plan_id_2c895107_fk_subscript"; args=None; alias=default
+ALTER TABLE "subscriptions_subscription" ALTER COLUMN "plan_id" DROP NOT NULL; (params None)
+(0.484) ALTER TABLE "subscriptions_subscription" ALTER COLUMN "plan_id" DROP NOT NULL; args=None; alias=default
+ALTER TABLE "subscriptions_subscription" ADD CONSTRAINT "subscriptions_subscr_plan_id_2c895107_fk_subscript" FOREIGN KEY ("plan_id") REFERENCES "subscriptions_plan" ("id") DEFERRABLE INITIALLY DEFERRED; (params None)
+(0.344) ALTER TABLE "subscriptions_subscription" ADD CONSTRAINT "subscriptions_subscr_plan_id_2c895107_fk_subscript" FOREIGN KEY ("plan_id") REFERENCES "subscriptions_plan" ("id") DEFERRABLE INITIALLY DEFERRED; args=None; alias=default
+(0.579) 
+            SELECT
+                c.conname,
+                array(
+                    SELECT attname
+                    FROM unnest(c.conkey) WITH ORDINALITY cols(colid, arridx)
+                    JOIN pg_attribute AS ca ON cols.colid = ca.attnum
+                    WHERE ca.attrelid = c.conrelid
+                    ORDER BY cols.arridx
+                ),
+                c.contype,
+                (SELECT fkc.relname || '.' || fka.attname
+                FROM pg_attribute AS fka
+                JOIN pg_class AS fkc ON fka.attrelid = fkc.oid
+                WHERE fka.attrelid = c.confrelid AND fka.attnum = c.confkey[1]),
+                cl.reloptions
+            FROM pg_constraint AS c
+            JOIN pg_class AS cl ON c.conrelid = cl.oid
+            WHERE cl.relname = 'subscriptions_subscription' AND pg_catalog.pg_table_is_visible(cl.oid)
+        ; args=['subscriptions_subscription']; alias=default
+(0.437) 
+            SELECT
+                indexname,
+                array_agg(attname ORDER BY arridx),
+                indisunique,
+                indisprimary,
+                array_agg(ordering ORDER BY arridx),
+                amname,
+                exprdef,
+                s2.attoptions
+            FROM (
+                SELECT
+                    c2.relname as indexname, idx.*, attr.attname, am.amname,
+                    CASE
+                        WHEN idx.indexprs IS NOT NULL THEN
+                            pg_get_indexdef(idx.indexrelid)
+                    END AS exprdef,
+                    CASE am.amname
+                        WHEN 'btree' THEN
+                            CASE (option & 1)
+                                WHEN 1 THEN 'DESC' ELSE 'ASC'
+                            END
+                    END as ordering,
+                    c2.reloptions as attoptions
+                FROM (
+                    SELECT *
+                    FROM
+                        pg_index i,
+                        unnest(i.indkey, i.indoption)
+                            WITH ORDINALITY koi(key, option, arridx)
+                ) idx
+                LEFT JOIN pg_class c ON idx.indrelid = c.oid
+                LEFT JOIN pg_class c2 ON idx.indexrelid = c2.oid
+                LEFT JOIN pg_am am ON c2.relam = am.oid
+                LEFT JOIN
+                    pg_attribute attr ON attr.attrelid = c.oid AND attr.attnum = idx.key
+                WHERE c.relname = 'subscriptions_subscription' AND pg_catalog.pg_table_is_visible(c.oid)
+            ) s2
+            GROUP BY indexname, indisunique, indisprimary, amname, exprdef, attoptions;
+        ; args=['btree', 'subscriptions_subscription']; alias=default
+SET CONSTRAINTS "subscriptions_subscr_user_id_a353e93d_fk_accounts_" IMMEDIATE; ALTER TABLE "subscriptions_subscription" DROP CONSTRAINT "subscriptions_subscr_user_id_a353e93d_fk_accounts_"; (params None)
+(1.313) SET CONSTRAINTS "subscriptions_subscr_user_id_a353e93d_fk_accounts_" IMMEDIATE; ALTER TABLE "subscriptions_subscription" DROP CONSTRAINT "subscriptions_subscr_user_id_a353e93d_fk_accounts_"; args=None; alias=default
+ALTER TABLE "subscriptions_subscription" ALTER COLUMN "user_id" DROP NOT NULL; (params None)
+(0.390) ALTER TABLE "subscriptions_subscription" ALTER COLUMN "user_id" DROP NOT NULL; args=None; alias=default
+ALTER TABLE "subscriptions_subscription" ADD CONSTRAINT "subscriptions_subscr_user_id_a353e93d_fk_accounts_" FOREIGN KEY ("user_id") REFERENCES "accounts_customuser" ("id") DEFERRABLE INITIALLY DEFERRED; (params None)
+(0.438) ALTER TABLE "subscriptions_subscription" ADD CONSTRAINT "subscriptions_subscr_user_id_a353e93d_fk_accounts_" FOREIGN KEY ("user_id") REFERENCES "accounts_customuser" ("id") DEFERRABLE INITIALLY DEFERRED; args=None; alias=default
+(0.484) INSERT INTO "django_migrations" ("app", "name", "applied") VALUES ('subscriptions', '0003_alter_plan_period_alter_subscription_end_date_and_more', '2025-01-07T15:22:44.518090+00:00'::timestamptz) RETURNING "django_migrations"."id"; args=('subscriptions', '0003_alter_plan_period_alter_subscription_end_date_and_more', datetime.datetime(2025, 1, 7, 15, 22, 44, 518090, tzinfo=datetime.timezone.utc)); alias=default
+(0.406) COMMIT; args=None; alias=default
+(0.485) SELECT "django_migrations"."id", "django_migrations"."app", "django_migrations"."name", "django_migrations"."applied" FROM "django_migrations"; args=(); alias=default
+(0.407) SELECT "django_content_type"."id", "django_content_type"."app_label", "django_content_type"."model" FROM "django_content_type" WHERE "django_content_type"."app_label" = 'admin'; args=('admin',); alias=default
+(0.296) SELECT "django_content_type"."id", "django_content_type"."app_label", "django_content_type"."model" FROM "django_content_type" WHERE ("django_content_type"."app_label" = 'admin' AND "django_content_type"."model" IN ('logentry')); args=('admin', 'logentry'); alias=default
+(0.454) SELECT "auth_permission"."content_type_id", "auth_permission"."codename" FROM "auth_permission" INNER JOIN "django_content_type" ON ("auth_permission"."content_type_id" = "django_content_type"."id") WHERE "auth_permission"."content_type_id" IN (1) ORDER BY "django_content_type"."app_label" ASC, "django_content_type"."model" ASC, "auth_permission"."codename" ASC; args=(1,); alias=default
+(0.328) SELECT "django_content_type"."id", "django_content_type"."app_label", "django_content_type"."model" FROM "django_content_type" WHERE "django_content_type"."app_label" = 'admin'; args=('admin',); alias=default
+(0.297) SELECT "django_content_type"."id", "django_content_type"."app_label", "django_content_type"."model" FROM "django_content_type" WHERE "django_content_type"."app_label" = 'auth'; args=('auth',); alias=default
+(0.328) SELECT "django_content_type"."id", "django_content_type"."app_label", "django_content_type"."model" FROM "django_content_type" WHERE ("django_content_type"."app_label" = 'auth' AND "django_content_type"."model" IN ('group', 'permission')); args=('auth', 'group', 'permission'); alias=default
+(0.297) SELECT "auth_permission"."content_type_id", "auth_permission"."codename" FROM "auth_permission" INNER JOIN "django_content_type" ON ("auth_permission"."content_type_id" = "django_content_type"."id") WHERE "auth_permission"."content_type_id" IN (2, 3) ORDER BY "django_content_type"."app_label" ASC, "django_content_type"."model" ASC, "auth_permission"."codename" ASC; args=(2, 3); alias=default
+(0.296) SELECT "django_content_type"."id", "django_content_type"."app_label", "django_content_type"."model" FROM "django_content_type" WHERE "django_content_type"."app_label" = 'auth'; args=('auth',); alias=default
+(0.297) SELECT "django_content_type"."id", "django_content_type"."app_label", "django_content_type"."model" FROM "django_content_type" WHERE "django_content_type"."app_label" = 'contenttypes'; args=('contenttypes',); alias=default
+(0.281) SELECT "django_content_type"."id", "django_content_type"."app_label", "django_content_type"."model" FROM "django_content_type" WHERE ("django_content_type"."app_label" = 'contenttypes' AND "django_content_type"."model" IN ('contenttype')); args=('contenttypes', 'contenttype'); alias=default
+(0.313) SELECT "auth_permission"."content_type_id", "auth_permission"."codename" FROM "auth_permission" INNER JOIN "django_content_type" ON ("auth_permission"."content_type_id" = "django_content_type"."id") WHERE "auth_permission"."content_type_id" IN (4) ORDER BY "django_content_type"."app_label" ASC, "django_content_type"."model" ASC, "auth_permission"."codename" ASC; args=(4,); alias=default
+(0.281) SELECT "django_content_type"."id", "django_content_type"."app_label", "django_content_type"."model" FROM "django_content_type" WHERE "django_content_type"."app_label" = 'contenttypes'; args=('contenttypes',); alias=default
+(0.281) SELECT "django_content_type"."id", "django_content_type"."app_label", "django_content_type"."model" FROM "django_content_type" WHERE "django_content_type"."app_label" = 'sessions'; args=('sessions',); alias=default
+(0.297) SELECT "django_content_type"."id", "django_content_type"."app_label", "django_content_type"."model" FROM "django_content_type" WHERE ("django_content_type"."app_label" = 'sessions' AND "django_content_type"."model" IN ('session')); args=('sessions', 'session'); alias=default
+(0.313) SELECT "auth_permission"."content_type_id", "auth_permission"."codename" FROM "auth_permission" INNER JOIN "django_content_type" ON ("auth_permission"."content_type_id" = "django_content_type"."id") WHERE "auth_permission"."content_type_id" IN (5) ORDER BY "django_content_type"."app_label" ASC, "django_content_type"."model" ASC, "auth_permission"."codename" ASC; args=(5,); alias=default
+(0.296) SELECT "django_content_type"."id", "django_content_type"."app_label", "django_content_type"."model" FROM "django_content_type" WHERE "django_content_type"."app_label" = 'sessions'; args=('sessions',); alias=default
+(0.297) SELECT "django_content_type"."id", "django_content_type"."app_label", "django_content_type"."model" FROM "django_content_type" WHERE "django_content_type"."app_label" = 'token_blacklist'; args=('token_blacklist',); alias=default
+(0.297) SELECT "django_content_type"."id", "django_content_type"."app_label", "django_content_type"."model" FROM "django_content_type" WHERE ("django_content_type"."app_label" = 'token_blacklist' AND "django_content_type"."model" IN ('blacklistedtoken', 'outstandingtoken')); args=('token_blacklist', 'blacklistedtoken', 'outstandingtoken'); alias=default
+(0.453) SELECT "auth_permission"."content_type_id", "auth_permission"."codename" FROM "auth_permission" INNER JOIN "django_content_type" ON ("auth_permission"."content_type_id" = "django_content_type"."id") WHERE "auth_permission"."content_type_id" IN (6, 7) ORDER BY "django_content_type"."app_label" ASC, "django_content_type"."model" ASC, "auth_permission"."codename" ASC; args=(6, 7); alias=default
+(0.766) SELECT "django_content_type"."id", "django_content_type"."app_label", "django_content_type"."model" FROM "django_content_type" WHERE "django_content_type"."app_label" = 'token_blacklist'; args=('token_blacklist',); alias=default
+(0.828) SELECT "django_content_type"."id", "django_content_type"."app_label", "django_content_type"."model" FROM "django_content_type" WHERE "django_content_type"."app_label" = 'accounts'; args=('accounts',); alias=default
+(0.344) SELECT "django_content_type"."id", "django_content_type"."app_label", "django_content_type"."model" FROM "django_content_type" WHERE ("django_content_type"."app_label" = 'accounts' AND "django_content_type"."model" IN ('customuser')); args=('accounts', 'customuser'); alias=default
+(0.297) SELECT "auth_permission"."content_type_id", "auth_permission"."codename" FROM "auth_permission" INNER JOIN "django_content_type" ON ("auth_permission"."content_type_id" = "django_content_type"."id") WHERE "auth_permission"."content_type_id" IN (8) ORDER BY "django_content_type"."app_label" ASC, "django_content_type"."model" ASC, "auth_permission"."codename" ASC; args=(8,); alias=default
+(0.328) SELECT "django_content_type"."id", "django_content_type"."app_label", "django_content_type"."model" FROM "django_content_type" WHERE "django_content_type"."app_label" = 'accounts'; args=('accounts',); alias=default
+(0.297) SELECT "django_content_type"."id", "django_content_type"."app_label", "django_content_type"."model" FROM "django_content_type" WHERE "django_content_type"."app_label" = 'financials'; args=('financials',); alias=default
+(2.125) SELECT "django_content_type"."id", "django_content_type"."app_label", "django_content_type"."model" FROM "django_content_type" WHERE ("django_content_type"."app_label" = 'financials' AND "django_content_type"."model" IN ('companyinformation', 'historicalfindata', 'coststracture', 'industrymetrics', 'asset', 'workingcapital', 'dividendpolicy', 'revenuestream', 'revenuedrivers', 'adminmarketingexp', 'allexpenses', 'capex', 'employeeinfo')); args=('financials', 'companyinformation', 'historicalfindata', 'coststracture', 'industrymetrics', 'asset', 'workingcapital', 'dividendpolicy', 'revenuestream', 'revenuedrivers', 'adminmarketingexp', 'allexpenses', 'capex', 'employeeinfo'); alias=default
+(0.297) SELECT "auth_permission"."content_type_id", "auth_permission"."codename" FROM "auth_permission" INNER JOIN "django_content_type" ON ("auth_permission"."content_type_id" = "django_content_type"."id") WHERE "auth_permission"."content_type_id" IN (9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21) ORDER BY "django_content_type"."app_label" ASC, "django_content_type"."model" ASC, "auth_permission"."codename" ASC; args=(9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21); alias=default
+(0.421) SELECT "django_content_type"."id", "django_content_type"."app_label", "django_content_type"."model" FROM "django_content_type" WHERE "django_content_type"."app_label" = 'financials'; args=('financials',); alias=default
+(1.219) SELECT "django_content_type"."id", "django_content_type"."app_label", "django_content_type"."model" FROM "django_content_type" WHERE "django_content_type"."app_label" = 'subscriptions'; args=('subscriptions',); alias=default
+(0.953) SELECT "django_content_type"."id", "django_content_type"."app_label", "django_content_type"."model" FROM "django_content_type" WHERE ("django_content_type"."app_label" = 'subscriptions' AND "django_content_type"."model" IN ('subscription', 'plan')); args=('subscriptions', 'subscription', 'plan'); alias=default
+(0.907) SELECT "auth_permission"."content_type_id", "auth_permission"."codename" FROM "auth_permission" INNER JOIN "django_content_type" ON ("auth_permission"."content_type_id" = "django_content_type"."id") WHERE "auth_permission"."content_type_id" IN (22, 23) ORDER BY "django_content_type"."app_label" ASC, "django_content_type"."model" ASC, "auth_permission"."codename" ASC; args=(22, 23); alias=default
+(0.953) SELECT "django_content_type"."id", "django_content_type"."app_label", "django_content_type"."model" FROM "django_content_type" WHERE "django_content_type"."app_label" = 'subscriptions'; args=('subscriptions',); alias=default
