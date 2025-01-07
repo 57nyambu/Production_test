@@ -27,14 +27,20 @@ class CombinedCreateUpdateAPIView(generics.GenericAPIView):
         'failed': "Operation failed.",
     }
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context
+
+    
     def get_queryset(self):
         """
         Get queryset for all related models in a single database query.
         """
         return {
-            model_key: self.serializer_class._declared_fields[model_key].Meta.model.objects.filter(
-                user=self.request.user
-            )
+            model_key: self.serializer_class._declared_fields[model_key].Meta.model.objects
+                .select_related('user')
+                .filter(user=self.request.user)
             for model_key in self.serializer_class._declared_fields
         }
 
@@ -180,12 +186,12 @@ class CombinedCreateUpdateAPIView(generics.GenericAPIView):
 
     def prepare_data(self, data: Dict[str, Any]) -> Dict[str, Any]:
         prepared_data = data.copy()
-        user_id = self.request.user.id
+        user = self.request.user
         
-        prepared_data['user'] = user_id
-        
+        # Don't add user at top level as it's not needed by CombinedSerializer
         for key, field in self.serializer_class._declared_fields.items():
             if isinstance(prepared_data.get(key), dict):
-                prepared_data[key]['user'] = user_id
+                prepared_data[key]['user'] = user.id
                 
         return prepared_data
+    

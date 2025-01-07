@@ -25,21 +25,18 @@ class RequiredFieldsMixin:
 
 # Serializers
 class BaseModelSerializer(serializers.ModelSerializer):
-    # Explicitly declare user_id if you want to expose it
-    user_id = serializers.PrimaryKeyRelatedField(
-        source='user',  # Maps to the `user` field in the model
-        read_only=True  # Prevents direct modification
-    )
-
     class Meta:
-        fields = ['id', 'user_id', 'created_at', 'updated_at']
-        read_only_fields = ['id', 'created_at', 'updated_at']  # Prevent modification of these fields
+        fields = ['id', 'user', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'created_at', 'updated_at']
 
+    def create(self, validated_data):
+        validated_data['user'] = self.context['request'].user
+        return super().create(validated_data)
 
 
 class CompanyInformationSerializer(BaseModelSerializer):
     fiscal_year_end = serializers.DateField(input_formats=['%d/%m/%Y', '%Y-%m-%d'])
-    class Meta:
+    class Meta(BaseModelSerializer.Meta):
         model = CompanyInformation
         fields = BaseModelSerializer.Meta.fields + [
             'company_name', 'industry', 'company_stage', 'funding_type', 'fiscal_year_end'
@@ -47,7 +44,7 @@ class CompanyInformationSerializer(BaseModelSerializer):
 
 
 class WorkingCapitalSerializer(BaseModelSerializer):
-    class Meta:
+    class Meta(BaseModelSerializer.Meta):
         model = WorkingCapital
         fields = BaseModelSerializer.Meta.fields + [
             'days_receivables', 'days_inventory', 'days_payables', 'working_capital_days'
@@ -55,7 +52,7 @@ class WorkingCapitalSerializer(BaseModelSerializer):
 
 
 class RevenueStreamSerializer(BaseModelSerializer):
-    class Meta:
+    class Meta(BaseModelSerializer.Meta):
         model = RevenueStream
         fields = BaseModelSerializer.Meta.fields + [
             'name', 'type', 'amount'
@@ -66,7 +63,7 @@ class RevenueDriversSerializer(RequiredFieldsMixin, BaseModelSerializer):
     required_fields = ['average_selling_price', 'units_sold',]
     revenue_streams = RevenueStreamSerializer(many=True, required=False)
 
-    class Meta:
+    class Meta(BaseModelSerializer.Meta):
         model = RevenueDrivers
         fields = BaseModelSerializer.Meta.fields + [
             'average_selling_price', 'units_sold', 'revenue_streams'
@@ -74,7 +71,7 @@ class RevenueDriversSerializer(RequiredFieldsMixin, BaseModelSerializer):
 
 
 class CostStractureSerializer(BaseModelSerializer):
-    class Meta:
+    class Meta(BaseModelSerializer.Meta):
         model = CostStracture
         fields = BaseModelSerializer.Meta.fields + [
             'raw_material', 'direct_labor', 'man_overhead', 'total_cogs',
@@ -83,7 +80,7 @@ class CostStractureSerializer(BaseModelSerializer):
 
 
 class EmployeeInfoSerializer(BaseModelSerializer):
-    class Meta:
+    class Meta(BaseModelSerializer.Meta):
         model = EmployeeInfo
         fields = BaseModelSerializer.Meta.fields + [
             'position', 'salary', 'count', 'salary_growth_rate'
@@ -91,7 +88,7 @@ class EmployeeInfoSerializer(BaseModelSerializer):
 
 
 class AdminMarketingExpSerializer(BaseModelSerializer):
-    class Meta:
+    class Meta(BaseModelSerializer.Meta):
         model = AdminMarketingExp
         fields = BaseModelSerializer.Meta.fields + [
             'exp_type', 'amount', 'description'
@@ -103,14 +100,14 @@ class AllExpensesSerializer(RequiredFieldsMixin ,BaseModelSerializer):
     employee_info = EmployeeInfoSerializer(many=True, required=False)
     admin_marketing_exp = AdminMarketingExpSerializer(many=True, required=False)
 
-    class Meta:
+    class Meta(BaseModelSerializer.Meta):
         model = AllExpenses
         fields = BaseModelSerializer.Meta.fields + [
             'employee_info', 'average_selling_price', 'units_sold', 'admin_marketing_exp'
         ]
 
 class AssetSerializer(BaseModelSerializer):
-    class Meta:
+    class Meta(BaseModelSerializer.Meta):
         model = Asset
         fields = BaseModelSerializer.Meta.fields + [
             'name', 'value', 'type', 'description'
@@ -121,7 +118,7 @@ class CapexSerializer(RequiredFieldsMixin, BaseModelSerializer):
     required_fields = ['maintenance_capex', 'growth_capex', 'asset_lifespan', 'capitalized_costs']
     assets = AssetSerializer(many=True, required=False)
 
-    class Meta:
+    class Meta(BaseModelSerializer.Meta):
         model = Capex
         fields = BaseModelSerializer.Meta.fields + [
             'maintenance_capex', 'growth_capex', 'asset_lifespan', 'capitalized_costs', 'assets'
@@ -129,7 +126,7 @@ class CapexSerializer(RequiredFieldsMixin, BaseModelSerializer):
 
 
 class DividendPolicySerializer(BaseModelSerializer):
-    class Meta:
+    class Meta(BaseModelSerializer.Meta):
         model = DividendPolicy
         fields = BaseModelSerializer.Meta.fields + [
             'payout_ratio', 'div_per_share', 'div_growth_rt'
@@ -137,7 +134,7 @@ class DividendPolicySerializer(BaseModelSerializer):
 
 
 class IndustryMetricsSerializer(BaseModelSerializer):
-    class Meta:
+    class Meta(BaseModelSerializer.Meta):
         model = IndustryMetrics
         fields = BaseModelSerializer.Meta.fields + [
             'market_share', 'industry_growth_rate', 'competitor_count', 'market_size',
@@ -146,7 +143,7 @@ class IndustryMetricsSerializer(BaseModelSerializer):
 
 
 class HistoricalFinDataSerializer(BaseModelSerializer):
-    class Meta:
+    class Meta(BaseModelSerializer.Meta):
         model = HistoricalFinData
         fields = BaseModelSerializer.Meta.fields + [
             'revenue', 'cogs', 'salaries', 'rent', 'marketing', 'technology', 
@@ -168,6 +165,21 @@ class CombinedSerializer(serializers.Serializer):
     dividend_policy = DividendPolicySerializer(required=False)
     industry_metrics = IndustryMetricsSerializer(required=False)
     historical_fin_data = HistoricalFinDataSerializer(required=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Pass request context to child serializers
+        if 'context' in kwargs:
+            for field in self.fields.values():
+                field.context = kwargs['context']
+
+    def to_internal_value(self, data):
+        # Ensure user is added to all nested data
+        user = self.context['request'].user
+        for key, value in data.items():
+            if isinstance(value, dict):
+                value['user'] = user.id
+        return super().to_internal_value(data)
 
     def _get_model_and_serializer(self, key: str) -> tuple[Type[Model], serializers.Serializer]:
         """
