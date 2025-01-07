@@ -169,9 +169,17 @@ class CombinedSerializer(serializers.Serializer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Pass request context to child serializers
-        if 'context' in kwargs:
-            for field in self.fields.values():
-                field.context = kwargs['context']
+        context = kwargs.get('context', {})
+        for field_name, field in self.fields.items():
+            if isinstance(field, serializers.BaseSerializer):
+                field.context.update(context)
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        for field_name, field in self.fields.items():
+            if field_name in representation and isinstance(field, serializers.BaseSerializer):
+                field.context.update(self.context)
+        return representation
 
     def to_internal_value(self, data):
         # Ensure user is added to all nested data
@@ -179,6 +187,14 @@ class CombinedSerializer(serializers.Serializer):
         for key, value in data.items():
             if isinstance(value, dict):
                 value['user'] = user.id
+                # Recursively add user to nested serializers
+                for nested_key, nested_value in value.items():
+                    if isinstance(nested_value, list):
+                        for item in nested_value:
+                            if isinstance(item, dict):
+                                item['user'] = user.id
+                    elif isinstance(nested_value, dict):
+                        nested_value['user'] = user.id
         return super().to_internal_value(data)
 
     def _get_model_and_serializer(self, key: str) -> tuple[Type[Model], serializers.Serializer]:
