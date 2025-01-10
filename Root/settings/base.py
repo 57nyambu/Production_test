@@ -153,12 +153,11 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'accounts.CustomUser'
-DB_URL = env('DB_URL')
 
 # Email conf
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 RESEND_KEY = env('FINARCHITECT_RESEND_KEY')
-
+DB_URL = str(env('DB_URL'))
 # Security settings
 SECURE_BROWSER_XSS_FILTER = True
 X_FRAME_OPTIONS = 'DENY'
