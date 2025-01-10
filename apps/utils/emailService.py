@@ -5,31 +5,60 @@ resend.api_key = base.RESEND_KEY
 
 def welcomeEmail(user):
     params: resend.Emails.SendParams = {
-    "from": "Finarchitect <welcome@finarchitect.site>",
-    "to": [f"{user['email']}"],
-    "subject": "Welcome to Finarchitect!",
-    "html": f"""
+        "from": "Finarchitect <welcome@finarchitect.site>",
+        "to": [f"{user['email']}"],
+        "subject": "Welcome to Finarchitect!",
+        "html": f"""
         <html>
-        <body>
-            <h1>Welcome to Finarchitect!</h1>
-            <p>Dear {user['first_name']},</p>
-            <p>We are thrilled to have you with us. Thank you for signing up and becoming a part of the Finarchitect community!</p>
-            <p>At Finarchitect, we strive to provide you with the best financial architecture solutions tailored to your needs.</p>
-            <p>Here are some next steps to get you started:</p>
-            <ul>
-            <li>Explore your dashboard and familiarize yourself with the features.</li>
-            <li>Connect your accounts and start managing your finances efficiently.</li>
-            <li>Check out our resource center for tips and best practices.</li>
-            </ul>
-            <p>If you have any questions or need assistance, feel free to reach out to our support team at <a href="mailto:support@finarchitect.site">support@finarchitect.site</a>.</p>
-            <p>Best Regards,</p>
-            <p>The Finarchitect Team</p>
+        <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f9f9f9;">
+            <table width="100%" style="border-collapse: collapse; background-color: #f9f9f9;">
+                <tr>
+                    <td align="center">
+                        <table width="600px" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15); margin: 20px 0;">
+                            <tr>
+                                <td style="background-color: #0078d4; color: #ffffff; padding: 20px; text-align: center;">
+                                    <h1 style="margin: 0; font-size: 24px;">Welcome to Finarchitect!</h1>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 20px; color: #333;">
+                                    <p style="font-size: 16px;">Dear {user['first_name']},</p>
+                                    <p style="font-size: 16px; line-height: 1.5;">
+                                        We are thrilled to have you with us. Thank you for signing up and becoming a part of the Finarchitect community!
+                                    </p>
+                                    <p style="font-size: 16px; line-height: 1.5;">
+                                        At Finarchitect, we strive to provide you with the best financial architecture solutions tailored to your needs.
+                                    </p>
+                                    <p style="font-size: 16px; line-height: 1.5;">Here are some next steps to get you started:</p>
+                                    <ul style="font-size: 16px; line-height: 1.5; padding-left: 20px;">
+                                        <li>Explore your dashboard and familiarize yourself with the features.</li>
+                                        <li>Connect your accounts and start managing your finances efficiently.</li>
+                                        <li>Check out our resource center for tips and best practices.</li>
+                                    </ul>
+                                    <p style="font-size: 16px; line-height: 1.5;">
+                                        If you have any questions or need assistance, feel free to reach out to our support team at 
+                                        <a href="mailto:support@finarchitect.site" style="color: #0078d4; text-decoration: none;">support@finarchitect.site</a>.
+                                    </p>
+                                    <p style="font-size: 16px; line-height: 1.5;">Best Regards,</p>
+                                    <p style="font-size: 16px; line-height: 1.5;">The Finarchitect Team</p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="background-color: #f1f1f1; text-align: center; padding: 10px; font-size: 14px; color: #888;">
+                                    <p style="margin: 0;">&copy; 2025 Finarchitect. All rights reserved.</p>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
         </body>
         </html>
-    """
+        """
     }
 
     email = resend.Emails.send(params)
+
     
 def newUpdate(user):
     params: resend.Emails.SendParams = {
@@ -63,26 +92,34 @@ def newUpdate(user):
 
 def forgotPassEmail(user, resetLink):
     params: resend.Emails.SendParams = {
-    "from": "Finarchitect <support@finarchitect.site>",
-    "to": [f"{user['email']}"],
-    "subject": "Reset Your Finarchitect Password",
-    "html": f"""
-        <html>
-        <body>
-            <h1>Password Reset Request</h1>
-            <p>Dear ,</p>
-            <p>We received a request to reset your password for your Finarchitect account. Click the link below to reset your password:</p>
-            <p><a href="{resetLink}" target="_blank">Reset Password</a></p>
-            <p>If you did not request a password reset, please ignore this email. Your password will remain unchanged.</p>
-            <p>For security reasons, this link will expire in 24 hours.</p>
-            <p>If you have any questions or need further assistance, feel free to contact our support team at <a href="mailto:support@finarchitect.site">support@finarchitect.site</a>.</p>
-            <p>Best Regards,</p>
-            <p>The Finarchitect Team</p>
-        </body>
-        </html>
-    """
+        "from": "Finarchitect <support@finarchitect.site>",
+        "to": [f"{user['email']}"],
+        "subject": "Reset Your Finarchitect Password",
+        "html": f"""
+            <html>
+            <body>
+                <h1>Password Reset Request</h1>
+                <p>Dear {user.get('name', 'User')},</p>
+                <p>We received a request to reset your password for your Finarchitect account. Click the link below to reset your password:</p>
+                <p><a href="{resetLink}" style="
+                    background-color: #007bff;
+                    color: white;
+                    padding: 10px 20px;
+                    text-decoration: none;
+                    border-radius: 5px;
+                    display: inline-block;
+                    margin: 20px 0;
+                ">Reset Password</a></p>
+                <p>If you did not request a password reset, please ignore this email. Your password will remain unchanged.</p>
+                <p>For security reasons, this link will expire in 24 hours.</p>
+                <p>If you have any questions or need further assistance, feel free to contact our support team at <a href="mailto:support@finarchitect.site">support@finarchitect.site</a>.</p>
+                <p>Best Regards,</p>
+                <p>The Finarchitect Team</p>
+            </body>
+            </html>
+        """
     }
-
+    
     email = resend.Emails.send(params)
 
 

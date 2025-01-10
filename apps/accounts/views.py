@@ -7,7 +7,8 @@ from .serializers import (
     CustomUserSerializer, 
     LoginSerializer, 
     PasswordResetSerializer, 
-    AdminUserDetailSerializer,)
+    AdminUserDetailSerializer,
+    PasswordResetConfirmSerializer)
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.exceptions import InvalidToken
@@ -69,7 +70,7 @@ class LoginView(APIView):
                     'refresh_token': str(refresh),
                 }, status=status.HTTP_200_OK)
 
-            return Response({'success': True, 'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({'success': False, 'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -91,17 +92,27 @@ class LogoutView(APIView):
         except InvalidToken as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-class PasswordResetView(APIView): 
-    def post(self, request): 
-        serializer = PasswordResetSerializer(data=request.data, context={'request': request}) 
-        if serializer.is_valid(): 
-            serializer.save() 
-            return Response({
-                'success': True,
-                "message": "Password reset link sent."
-                }, status=status.HTTP_200_OK) 
+class PasswordResetView(APIView):
+    def post(self, request):
+        serializer = PasswordResetSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {"detail": "Password reset email has been sent."},
+                status=status.HTTP_200_OK
+            )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class PasswordResetConfirmView(APIView):
+    def post(self, request):
+        serializer = PasswordResetConfirmSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {"detail": "Password has been reset successfully."},
+                status=status.HTTP_200_OK
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class UpdateUserView(APIView):
 
@@ -146,29 +157,6 @@ class TestProtectedView(APIView):
 
     def get(self, request):
         return Response({'message': "Protected andpoint accessible to authenticated users."})
-    
-
-class RetrieveUserDataView(APIView):
-    def get(self, request):
-        if not request.user.is_authenticated:
-            return Response({"error": "Authentication required."}, status=status.HTTP_401_UNAUTHORIZED)
-
-        # Allow access only to users with is_superuser, is_admin, or is_staff permissions
-        user = request.user
-        if not (user.is_superuser or user.is_staff or getattr(user, 'is_admin', False)):
-            return Response({"error": "Access denied. Insufficient permissions."}, status=status.HTTP_403_FORBIDDEN)
-
-        data = {
-            'first_name': user.first_name,
-            'last_name': user.last_name,
-            'email': user.email,
-            'company': user.company
-        }
-
-        return Response({
-            'data': data,
-            'message': "User data retrieved successfully."
-        }, status=status.HTTP_200_OK)
 
 
 class IsAdminUser(permissions.BasePermission):
@@ -178,7 +166,7 @@ class IsAdminUser(permissions.BasePermission):
 class AdminUserViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = CustomUser.objects.all().select_related('subscription', 'subscription__plan')
     serializer_class = AdminUserDetailSerializer
-#    permission_classes = [IsAdminUser]
+    #permission_classes = [IsAdminUser]
     filter_backends = [SearchFilter, OrderingFilter]
     search_fields = ['email', 'first_name', 'last_name']
     ordering_fields = ['date_joined', 'email', 'subscription__plan__name']

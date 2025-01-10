@@ -73,14 +73,14 @@ CORS_ALLOW_HEADERS = [
 ]
 
 # Secure cookies: Ensure CSRF and session cookies are transmitted securely over HTTPS
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = False # Enable this for production
+SESSION_COOKIE_SECURE = False # Enable this for production
 
 # Enforce HTTPS and prevent HTTP traffic
-SECURE_SSL_REDIRECT = True
-SECURE_HSTS_SECONDS = 3600  # Enable HTTP Strict Transport Security (HSTS)
-SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-SECURE_HSTS_PRELOAD = True
+SECURE_SSL_REDIRECT = False
+SECURE_HSTS_SECONDS = 0  # recommended 3600 in production
+SECURE_HSTS_INCLUDE_SUBDOMAINS = False # Enable HSTS for subdomains enable in production
+SECURE_HSTS_PRELOAD = False # Enable HSTS Preload in production
 
 # Optional but recommended: Ensure cookies are only accessible over HTTPS
 SECURE_HTTP_ONLY = True

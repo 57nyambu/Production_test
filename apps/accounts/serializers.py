@@ -3,7 +3,7 @@ from .models import CustomUser
 from apps.subscriptions.models import Subscription
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.tokens import default_token_generator
-from django.utils.http import urlsafe_base64_encode 
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode 
 from django.utils.encoding import force_bytes
 from apps.utils.emailService import forgotPassEmail
 
@@ -37,26 +37,46 @@ class PasswordResetSerializer(serializers.Serializer):
 
     def validate_email(self, value):
         try:
-            user = CustomUser.objects.get(email=value)
+            self.user = CustomUser.objects.get(email=value)
         except CustomUser.DoesNotExist:
-            raise serializers.ValidationError("Email not found.")
+            raise serializers.ValidationError("No user found with this email address.")
         return value
-    
-    def save(self): 
-        request = self.context.get('request') 
-        user = CustomUser.objects.get(email=self.validated_data['email'])
-        token = default_token_generator.make_token(user) 
-        uid = urlsafe_base64_encode(force_bytes(user.pk)) 
-        reset_link = request.build_absolute_uri(f'/reset-password/{uid}/{token}/') 
-        email = user.email
-        #send_mail( 
-        #    'Password Reset Request', 
-        #    f'Click the link to reset your password: {reset_link}', 
-        #    'from@example.com', [user.email], fail_silently=False, )
-        forgotPassEmail(user, reset_link)
 
-        return email
-    
+    def save(self):
+        user = self.user
+        # Generate token
+        token = default_token_generator.make_token(user)
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        
+        # Create reset link - replace with your frontend URL
+        reset_url = f"https://finarchitect.com/reset-password/{uid}/{token}/"
+        
+        # Send email
+        forgotPassEmail(user, reset_url)
+        return True
+
+
+class PasswordResetConfirmSerializer(serializers.Serializer):
+    password = serializers.CharField(min_length=8, write_only=True)
+    token = serializers.CharField()
+    uidb64 = serializers.CharField()
+
+    def validate(self, data):
+        try:
+            uid = urlsafe_base64_decode(data['uidb64']).decode()
+            self.user = CustomUser.objects.get(pk=uid)
+        except (TypeError, ValueError, CustomUser.DoesNotExist):
+            raise serializers.ValidationError("Invalid reset link")
+
+        if not default_token_generator.check_token(self.user, data['token']):
+            raise serializers.ValidationError("Invalid or expired token")
+
+        return data
+
+    def save(self):
+        self.user.set_password(self.validated_data['password'])
+        self.user.save()
+        return self.user 
 
 class UpdateUserSerializer(serializers.ModelSerializer):
     class Meta:

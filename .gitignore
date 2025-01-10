@@ -1,4 +1,6 @@
 venv/
+*.log
+error.txt
 db.sqlite3
 test*
 .env
@@ -10,4 +12,3 @@ models.txt
 payload.txt
 doc.txt
 .gitignore
-debug.log
