@@ -5,10 +5,10 @@ from Root.settings.base import *
 DEBUG = True
 
 # Allowed hosts: Set this to your production domain
-ALLOWED_HOSTS = ['https://finarchitect.netlify.app/']
+ALLOWED_HOSTS = ['*']
 
 # Database settings (Make sure the credentials are correct)
-DATABASES['default'] = dj_database_url.parse("postgresql://tom:GfhXnMiRHYnunbU5aB6CF5jdNlwZcrRM@dpg-ctcjrj23esus73bh5v6g-a.oregon-postgres.render.com/deployment_db_98dm")
+DATABASES['default'] = dj_database_url.parse(DB_URL)
 
 # Static and media files
 STATIC_ROOT = BASE_DIR / 'staticfiles'
@@ -45,10 +45,32 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 # CORS settings: Allow frontend domain.
 #CORS_ALLOWED_ORIGINS = [
 #    "https://finarchitect.netlify.app",  # Allowing frontend domain hosted on Netlify]
-ALLOWED_HOSTS = ['finarchitect.onrender.com', 'https://finarchitect.netlify.app', '127.0.0.1', 'localhost']
+# ALLOWED_HOSTS = ['finarchitect.onrender.com', 'https://finarchitect.netlify.app', '127.0.0.1', 'localhost']
 
 CRS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
 
 # Secure cookies: Ensure CSRF and session cookies are transmitted securely over HTTPS
 CSRF_COOKIE_SECURE = True

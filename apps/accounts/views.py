@@ -34,12 +34,13 @@ class RegisterUserView(APIView):
             welcomeEmail(user_data) 
             user = serializer.data 
             response = Response({ 
+                'success': True,
                 'data': user, 
-                'message': "Welcome to the team!", 
+                'message': "User created!", 
                 }, status=status.HTTP_201_CREATED) 
             response['Content-Type'] = 'application/json' 
             return response 
-        response = Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST) 
+        response = Response({'success': False, "error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST) 
         response['Content-Type'] = 'application/json' 
         return response
 
@@ -62,12 +63,13 @@ class LoginView(APIView):
                 # Generate tokens using the authenticated user
                 refresh = RefreshToken.for_user(user)
                 return Response({
+                    'success': True,
                     'message': 'Login successful',
                     'access_token': str(refresh.access_token),
                     'refresh_token': str(refresh),
                 }, status=status.HTTP_200_OK)
 
-            return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({'success': True, 'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -95,6 +97,7 @@ class PasswordResetView(APIView):
         if serializer.is_valid(): 
             serializer.save() 
             return Response({
+                'success': True,
                 "message": "Password reset link sent."
                 }, status=status.HTTP_200_OK) 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
