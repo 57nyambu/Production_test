@@ -16,6 +16,7 @@ from apps.utils.emailService import welcomeEmail
 from django.views.generic.base import TemplateView
 import logging
 from .models import CustomUser
+from apps.utils.emailService import forgotPassEmail
 
 logger = logging.getLogger(__name__)
 
@@ -99,9 +100,14 @@ class PasswordResetRequestView(APIView):
         try:
             if serializer.is_valid():
                 data = serializer.save()
+                forgotPassEmail(data)
                 return Response({
                     'success': True,
-                    'data': data
+                    'data': {
+                        'token': data['token'],
+                        'uid': data['uid'],
+                        'email': data['email'],
+                    }
                 }, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({

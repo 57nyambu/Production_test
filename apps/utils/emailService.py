@@ -3,6 +3,7 @@ from Root.settings import base
 
 resend.api_key = base.RESEND_KEY
 
+
 def welcomeEmail(user):
     params: resend.Emails.SendParams = {
         "from": "Finarchitect <welcome@finarchitect.site>",
@@ -90,16 +91,17 @@ def newUpdate(user):
     email = resend.Emails.send(params)
 
 
-def forgotPassEmail(user, resetLink):
+def forgotPassEmail(data):
+    resetLink = f"https://finarchitect.netlify.app/reset-password/{data['uid']}/{data['token']}"
     params: resend.Emails.SendParams = {
         "from": "Finarchitect <support@finarchitect.site>",
-        "to": [f"{user['email']}"],
+        "to": [f"{data['email']}"],
         "subject": "Reset Your Finarchitect Password",
         "html": f"""
             <html>
             <body>
                 <h1>Password Reset Request</h1>
-                <p>Dear {user.get('name', 'User')},</p>
+                <p>Dear {data['first_name']},</p>
                 <p>We received a request to reset your password for your Finarchitect account. Click the link below to reset your password:</p>
                 <p><a href="{resetLink}" style="
                     background-color: #007bff;
