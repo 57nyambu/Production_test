@@ -44,26 +44,24 @@ class PasswordResetSerializer(serializers.Serializer):
 
     def save(self):
         user = self.user
-        # Generate token
         token = default_token_generator.make_token(user)
         uid = urlsafe_base64_encode(force_bytes(user.pk))
         
-        # Create reset link - replace with your frontend URL
-        reset_url = f"https://finarchitect.com/reset-password/{uid}/{token}/"
-        
-        # Send email
-        forgotPassEmail(user, reset_url)
-        return True
+        return {
+            'token': token,
+            'uid': uid,
+            'email': user.email
+        }
 
 
 class PasswordResetConfirmSerializer(serializers.Serializer):
     password = serializers.CharField(min_length=8, write_only=True)
     token = serializers.CharField()
-    uidb64 = serializers.CharField()
+    uid = serializers.CharField()
 
     def validate(self, data):
         try:
-            uid = urlsafe_base64_decode(data['uidb64']).decode()
+            uid = urlsafe_base64_decode(data['uid']).decode()
             self.user = CustomUser.objects.get(pk=uid)
         except (TypeError, ValueError, CustomUser.DoesNotExist):
             raise serializers.ValidationError("Invalid reset link")
@@ -76,7 +74,8 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
     def save(self):
         self.user.set_password(self.validated_data['password'])
         self.user.save()
-        return self.user 
+        return {'message': 'Password reset successful'} 
+    
 
 class UpdateUserSerializer(serializers.ModelSerializer):
     class Meta:

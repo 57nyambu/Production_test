@@ -8,7 +8,7 @@ from apps.accounts.views import (
     RegisterUserView,
     LoginView,
     LogoutView,
-    PasswordResetView,
+    PasswordResetRequestView,
     PasswordResetConfirmView,
 )
 
@@ -19,6 +19,6 @@ urlpatterns = [
     path('register/', RegisterUserView.as_view(), name='register'),
     path('login/', LoginView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
-    path('password-reset/', PasswordResetView.as_view(), name='password_reset'),
+    path('password-reset/', PasswordResetRequestView.as_view(), name='password_reset'),
     path('password-reset-confirm/', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
 ]
