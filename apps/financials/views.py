@@ -32,7 +32,6 @@ class CombinedCreateUpdateAPIView(generics.GenericAPIView):
         context['request'] = self.request
         return context
 
-    
     def get_queryset(self):
         """
         Get queryset for all related models in a single database query.
@@ -168,8 +167,20 @@ class CombinedCreateUpdateAPIView(generics.GenericAPIView):
                     status_code=status.HTTP_400_BAD_REQUEST
                 )
 
-            serializer.save()
-            return self.create_response(True, self.MESSAGES['updated'], serializer.data)
+            instance_mapping = serializer.save()
+            response_data = {
+                'modelIds': {
+                    key: str(instance.id) 
+                    for key, instance in instance_mapping.items()
+                },
+                **serializer.data
+            }
+            return self.create_response(
+                True,
+                self.MESSAGES['updated'],
+                response_data,
+                status_code=status.HTTP_200_OK
+            )
 
         except ValidationError as e:
             return self.create_response(
@@ -194,4 +205,3 @@ class CombinedCreateUpdateAPIView(generics.GenericAPIView):
                 prepared_data[key]['user'] = user.id
                 
         return prepared_data
-    
