@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'apps.accounts',
     'apps.financials',
     'apps.subscriptions',
+    'apps.combmodels',
 
 ]
 
