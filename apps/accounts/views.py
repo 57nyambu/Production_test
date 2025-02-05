@@ -8,7 +8,8 @@ from .serializers import (
     LoginSerializer, 
     PasswordResetSerializer, 
     AdminUserDetailSerializer,
-    PasswordResetConfirmSerializer)
+    PasswordResetConfirmSerializer,
+    UserDetailSerializer)
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.exceptions import InvalidToken
@@ -198,3 +199,14 @@ class AdminUserViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = [SearchFilter, OrderingFilter]
     search_fields = ['email', 'first_name', 'last_name']
     ordering_fields = ['date_joined', 'email', 'subscription__plan__name']
+
+
+class UserDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = UserDetailSerializer
+    def get(self, request):
+        try:
+            serializer = self.serializer_class(request.user)
+            return Response({'success': True, 'data': serializer.data
+                    }, status=status.HTTP_200_OK)
+        except: return Response({'success': False, 'error': 'User not found'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

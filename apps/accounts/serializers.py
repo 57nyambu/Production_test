@@ -115,3 +115,15 @@ class AdminUserDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ['first_name', 'last_name', 'email', 'company', 'date_joined', 'last_login', 'is_active', 'subscription']
+
+
+class UserDetailSerializer(serializers.ModelSerializer):
+    subscription = AdminUserSubscriptionSerializer(read_only=True)
+    class Meta:
+        model = CustomUser
+        fields = ['first_name', 
+                  'last_name', 
+                  'email', 
+                  'company',
+                  'subscription']
+        read_only_fields = fields

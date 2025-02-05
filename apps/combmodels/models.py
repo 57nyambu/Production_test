@@ -1,24 +1,25 @@
 from django.db import models
 import uuid
 from apps.accounts.models import CustomUser
+from apps.financials.models import BaseModel
 
-class BaseModel(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="%(class)ss")
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
-    class Meta:
-        abstract = True
+# MARKETING
+class MarketingType(BaseModel):
+    name = models.CharField(max_length=200)
+    cost = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self):
+        return f"{self.name} {self.cost}"
 
 
 class Marketing(BaseModel):
-    budget_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    monthly_market_cost = models.ManyToManyField(MarketingType)
+    yearly_market_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     cust_acq_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    cust_lifetime_val = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    avg_sell_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    market_share = models.DecimalField(max_digits=5, decimal_places=2, default=0)
-    market_size = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    subscript_count = models.PositiveIntegerField(default=0)
+    subscript_dist = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    growth_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0)
 
     class Meta:
         verbose_name = "Marketing"

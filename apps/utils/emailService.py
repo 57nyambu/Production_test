@@ -8,7 +8,7 @@ def welcomeEmail(user):
     params: resend.Emails.SendParams = {
         "from": "Finarchitect <welcome@finarchitect.site>",
         "to": [f"{user['email']}"],
-        "subject": "Welcome to Finarchitect!",
+        "subject": "Welcome to FinArchitect!",
         "html": f"""
         <html>
         <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f9f9f9;">
@@ -92,7 +92,7 @@ def newUpdate(user):
 
 
 def forgotPassEmail(data):
-    resetLink = f"https://finarchitect.netlify.app/reset-password/{data['uid']}/{data['token']}"
+    resetLink = f"https://reset-password-jet.vercel.app/{data['uid']}/{data['token']}"
     params: resend.Emails.SendParams = {
         "from": "Finarchitect <support@finarchitect.site>",
         "to": [f"{data['email']}"],

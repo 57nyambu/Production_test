@@ -1,13 +1,10 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
-from .serializers import CombinedSerializer
+from .serializers.core import CombinedSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status, generics
-from apps.subscriptions.permissions import HasActiveSubscription
-from rest_framework.exceptions import ValidationError
 from django.db import transaction
-from typing import Dict, Any
 import logging
 
 logger = logging.getLogger(__name__)
