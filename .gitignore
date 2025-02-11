@@ -1,4 +1,3 @@
-venv/
 *.log
 error.txt
 db.sqlite3
