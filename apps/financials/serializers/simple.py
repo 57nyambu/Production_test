@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from apps.financials.serializers.core import BaseModelSerializer
+from apps.financials.serializers.core import BaseModelSerializer, NestedManyToManyMixin
 from ..models import (
     CompanyInformation, WorkingCapital, RevenueStream, RevenueDrivers,
     CostStracture, EmployeeInfo, AdminMarketingExp, AllExpenses,
@@ -10,19 +10,6 @@ import logging
 # Don't even think about touching it, validating req fields
 logger = logging.getLogger(__name__)
 
-class RequiredFieldsMixin:
-    required_fields = []
-
-    def validate(self, data):
-        missing_fields = [
-            field for field in self.required_fields 
-            if field not in data or data[field] is None
-        ]
-        if missing_fields:
-            raise serializers.ValidationError({field: f"{field} is required." for field in missing_fields})
-        return data
-
-# Serializers
 
 class CompanyInformationSerializer(BaseModelSerializer):
     fiscal_year_end = serializers.DateField(input_formats=['%d/%m/%Y', '%Y-%m-%d'])
@@ -49,8 +36,7 @@ class RevenueStreamSerializer(BaseModelSerializer):
         ]
 
 
-class RevenueDriversSerializer(BaseModelSerializer):
-    #required_fields = ['average_selling_price', 'units_sold']
+class RevenueDriversSerializer(BaseModelSerializer, NestedManyToManyMixin):
     revenue_streams = RevenueStreamSerializer(many=True, required=False)
 
     class Meta(BaseModelSerializer.Meta):
@@ -85,7 +71,7 @@ class AdminMarketingExpSerializer(BaseModelSerializer):
         ]
 
 
-class AllExpensesSerializer(RequiredFieldsMixin ,BaseModelSerializer):
+class AllExpensesSerializer(NestedManyToManyMixin ,BaseModelSerializer):
     #required_fields = ['average_selling_price', 'units_sold']
     employee_info = EmployeeInfoSerializer(many=True, required=False)
     admin_marketing_exp = AdminMarketingExpSerializer(many=True, required=False)
@@ -104,7 +90,7 @@ class AssetSerializer(BaseModelSerializer):
         ]
 
 
-class CapexSerializer(RequiredFieldsMixin, BaseModelSerializer):
+class CapexSerializer(NestedManyToManyMixin, BaseModelSerializer):
     #required_fields = ['maintenance_capex', 'growth_capex', 'asset_lifespan', 'capitalized_costs']
     assets = AssetSerializer(many=True, required=False)
 

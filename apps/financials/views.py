@@ -1,149 +1,100 @@
-from rest_framework import generics, status
+from rest_framework import viewsets, status
 from rest_framework.response import Response
-from .serializers.core import CombinedSerializer
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework import status, generics
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
-import logging
+from rest_framework.permissions import IsAuthenticated
 
-logger = logging.getLogger(__name__)
+from .models import (CompanyInformation,
+                     WorkingCapital,
+                     RevenueDrivers,
+                     CostStracture,
+                     AllExpenses,
+                     Capex,
+                     DividendPolicy,
+                     IndustryMetrics,
+                     HistoricalFinData)
 
+from .serializers.simple import (
+        CompanyInformationSerializer,
+        WorkingCapitalSerializer,
+        RevenueDriversSerializer,
+        CostStractureSerializer,
+        AllExpensesSerializer,
+        CapexSerializer,
+        DividendPolicySerializer,
+        IndustryMetricsSerializer,
+        HistoricalFinDataSerializer
+    )
 
-class CombinedCreateUpdateAPIView(generics.GenericAPIView):
+class SmartModelViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
-    serializer_class = CombinedSerializer
-
     def get_queryset(self):
-        return {
-            field_name: field.Meta.model.objects.filter(
-                user=self.request.user
-            ).select_related('user').prefetch_related(
-                *self._get_prefetch_fields(field)
-            )
-            for field_name, field in self.get_serializer().fields.items()
-        }
-
-    def _get_prefetch_fields(self, field):
-        prefetch_fields = []
-        if hasattr(field, 'child'):
-            meta = getattr(field.child, 'Meta', None)
-        else:
-            meta = getattr(field, 'Meta', None)
-            
-        if meta and hasattr(meta, 'model'):
-            for related_field in meta.model._meta.get_fields():
-                if related_field.is_relation:
-                    prefetch_fields.append(related_field.name)
-        
-        return prefetch_fields
-
-    def _get_all_data(self):
-        instances = {
-            key: queryset.first()
-            for key, queryset in self.get_queryset().items()
-        }
-        serializer = self.get_serializer(instances)
-        return serializer.data
-
-    def get(self, request, *args, **kwargs):
-        try:
-            data = self._get_all_data()
-            return Response({
-                'success': True,
-                'message': "Data retrieved successfully",
-                'data': data
-            })
-        except Exception as e:
-            return Response({
-                'success': False,
-                'message': f"Error retrieving data: {str(e)}",
-                'data': None
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return super().get_queryset().filter(user=self.request.user)
 
     @transaction.atomic
-    def post(self, request, *args, **kwargs):
-        """POST method with redirect to PATCH if resources exist"""
+    def create(self, request, *args, **kwargs):
         try:
-            # Check for existing resources
-            existing_resources = {
-                key: self.get_queryset()[key].exists()
-                for key in request.data.keys()
+            # Check existing by unique fields within user's scope
+            unique_fields = {
+                field: request.data.get(field)
+                for fields in self.get_queryset().model._meta.unique_together or []
+                for field in fields
+                if field != 'user' and request.data.get(field)
             }
-
-            # If any requested resource exists, redirect to PATCH
-            if any(existing_resources.values()):
-                existing_keys = [k for k, v in existing_resources.items() if v]
-                return Response({
-                    'success': False,
-                    'message': f"Resources already exist for: {', '.join(existing_keys)}. Use PATCH to update.",
-                    'data': self._get_all_data()
-                }, status=status.HTTP_409_CONFLICT)
-
-            serializer = self.get_serializer(
-                data=request.data,
-                context={'request': request}
-            )
-
-            if not serializer.is_valid():
-                return Response({
-                    'success': False,
-                    'message': "Validation failed",
-                    'errors': serializer.errors,
-                    'data': self._get_all_data()
-                }, status=status.HTTP_400_BAD_REQUEST)
-
-            serializer.save()
             
-            return Response({
-                'success': True,
-                'message': "Data created successfully",
-                'data': self._get_all_data()
-            }, status=status.HTTP_201_CREATED)
+            if unique_fields:
+                instance = self.get_queryset().filter(**unique_fields).select_for_update().get()
+                serializer = self.get_serializer(instance, data=request.data, partial=True)
+                serializer.is_valid(raise_exception=True)
+                self.perform_update(serializer)
+                return Response(serializer.data)
+                
+        except ObjectDoesNotExist:
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-        except Exception as e:
-            logger.error(f"Error in POST request: {str(e)}", exc_info=True)
-            return Response({
-                'success': False,
-                'message': f"Creation failed: {str(e)}",
-                'data': self._get_all_data()
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
-    @transaction.atomic
-    def patch(self, request, *args, **kwargs):
-        try:
-            # Get instances that might exist
-            instances = {
-                key: self.get_queryset()[key].select_for_update().first()
-                for key in request.data.keys()
-            }
+    def perform_update(self, serializer):
+        serializer.save(user=self.request.user)
 
-            serializer = self.get_serializer(
-                instances,
-                data=request.data,
-                partial=True,
-                context={'request': request}
-            )
 
-            if not serializer.is_valid():
-                return Response({
-                    'success': False,
-                    'message': "Validation failed",
-                    'errors': serializer.errors,
-                    'data': self._get_all_data()
-                }, status=status.HTTP_400_BAD_REQUEST)
+class CompanyInformationViewSet(SmartModelViewSet):
+    serializer_class = CompanyInformationSerializer
+    queryset = CompanyInformation.objects.all()
 
-            serializer.save()
-            
-            return Response({
-                'success': True,
-                'message': "Data updated successfully",
-                'data': self._get_all_data()
-            }, status=status.HTTP_200_OK)
+class WorkingCapitalViewSet(SmartModelViewSet):
+    serializer_class = WorkingCapitalSerializer
+    queryset = WorkingCapital.objects.all()
 
-        except Exception as e:
-            return Response({
-                'success': False,
-                'message': f"Update failed: {str(e)}",
-                'data': self._get_all_data()
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+class RevenueDriversViewSet(SmartModelViewSet):
+    serializer_class = RevenueDriversSerializer
+    queryset = RevenueDrivers.objects.all()
+
+class CostStractureViewSet(SmartModelViewSet):
+    serializer_class = CostStractureSerializer
+    queryset = CostStracture.objects.all()
+
+class AllExpensesViewSet(SmartModelViewSet):
+    serializer_class = AllExpensesSerializer
+    queryset = AllExpenses.objects.all()
+
+class CapexViewSet(SmartModelViewSet):
+    serializer_class = CapexSerializer
+    queryset = Capex.objects.all()
+
+class DividendPolicyViewSet(SmartModelViewSet):
+    serializer_class = DividendPolicySerializer
+    queryset = DividendPolicy.objects.all()
+
+class IndustryMetricsViewSet(SmartModelViewSet):
+    serializer_class = IndustryMetricsSerializer
+    queryset = IndustryMetrics.objects.all()
+
+class HistoricalFinDataViewSet(SmartModelViewSet):
+    serializer_class = HistoricalFinDataSerializer
+    queryset = HistoricalFinData.objects.all()
+    

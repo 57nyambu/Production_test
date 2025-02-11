@@ -1,321 +1,120 @@
-from django.db import models
 from rest_framework import serializers
 from django.db import transaction
+from django.core.exceptions import ValidationError
 
+from django.db import models
 class BaseModelSerializer(serializers.ModelSerializer):
     class Meta:
-        fields = ['id', 'user', 'created_at', 'updated_at']
+        fields = ['id', 'created_at', 'updated_at']  # Changed to list instead of tuple
         read_only_fields = ['id', 'created_at', 'updated_at']
 
-    def get_fields(self):
-        fields = super().get_fields()
-        if self.context.get('nested_depth', 0) > 10:
-            return {}
-        return fields
+    def _inject_user(self, validated_data):
+        """Inject the authenticated user into the validated data."""
+        current_user = self.context['request'].user
+        if current_user.is_anonymous:
+            raise ValidationError("User must be authenticated to perform this action.")
+        validated_data['user'] = current_user
+        return validated_data
+
+    def create(self, validated_data):
+        """Override create method to inject the user."""
+        validated_data = self._inject_user(validated_data)
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        """Override update method to inject the user."""
+        validated_data = self._inject_user(validated_data)
+        return super().update(instance, validated_data)
+    
+
+class NestedManyToManyMixin(serializers.ModelSerializer):
+    def _get_unique_fields(self, model):
+        """Get unique fields for the model, defaulting to ('id',) if not defined."""
+        if model._meta.unique_together:
+            return model._meta.unique_together[0]
+        return ('id',)
+
+    def _generate_lookup_key(self, item, unique_fields):
+        """Generate a lookup key for the item based on unique_fields."""
+        key = []
+        for field in unique_fields:
+            value = item.get(field)
+            if isinstance(value, models.Model):
+                key.append(value.id)
+            else:
+                key.append(value)
+        return tuple(key)
+
+    def _bulk_get_or_create_related(self, model, data_list):
+        """Bulk get or create related objects."""
+        unique_fields = self._get_unique_fields(model)
+        lookup_dict = {}
+        
+        # Generate lookup keys for each item in the data_list
+        for item in data_list:
+            key = self._generate_lookup_key(item, unique_fields)
+            lookup_dict[key] = item
+            
+        # Filter existing objects by unique fields
+        existing = model.objects.filter(
+            **{f"{field}__in": [item.get(field) for item in data_list] for field in unique_fields}
+        )
+        
+        # Create a set of keys for existing objects
+        found_keys = set(self._generate_lookup_key(obj, unique_fields) for obj in existing)
+        
+        # Prepare objects to create
+        to_create = [
+            model(**lookup_dict[key])
+            for key in lookup_dict.keys() - found_keys
+        ]
+        
+        # Bulk create new objects
+        if to_create:
+            existing = list(existing) + model.objects.bulk_create(to_create)
+            
+        return existing
 
     @transaction.atomic
     def create(self, validated_data):
-        """
-        Handle creation with nested relationships
-        """
-        nested_fields = self._get_nested_fields()
-        nested_data = {}
-
-        # Extract nested data from validated_data
-        for field_name in nested_fields:
-            if field_name in validated_data:
-                nested_data[field_name] = validated_data.pop(field_name)
-
-        # Create the main instance
-        validated_data['user'] = self.context['request'].user
+        """Create an instance with nested many-to-many relationships."""
+        nested_fields = {
+            field_name: validated_data.pop(field_name, [])
+            for field_name in self.nested_many_to_many_fields
+        }
+        
+        # Create the instance using the parent class's create method
         instance = super().create(validated_data)
-
-        # Handle nested creates
-        self._handle_nested_operations(instance, nested_data, create=True)
-
+        
+        # Handle nested many-to-many fields
+        for field_name, related_data in nested_fields.items():
+            if not related_data:
+                continue
+                
+            related_model = self.fields[field_name].child.Meta.model
+            related_objects = self._bulk_get_or_create_related(related_model, related_data)
+            getattr(instance, field_name).set(related_objects)
+            
         return instance
 
     @transaction.atomic
     def update(self, instance, validated_data):
-        """
-        Handle updates with nested relationships
-        """
-        nested_fields = self._get_nested_fields()
-        nested_data = {}
-
-        # Extract nested data from validated_data
-        for field_name in nested_fields:
-            if field_name in validated_data:
-                nested_data[field_name] = validated_data.pop(field_name)
-
-        # Update the main instance
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-        instance.save()
-
-        # Handle nested updates
-        self._handle_nested_operations(instance, nested_data, create=False)
-
-        return instance
-
-    def _get_nested_fields(self):
-        """
-        Get all nested serializer fields
-        """
-        nested_fields = []
-        for field_name, field in self.fields.items():
-            if isinstance(field, serializers.BaseSerializer) and not field.read_only:
-                nested_fields.append(field_name)
-        return nested_fields
-
-    def _handle_nested_operations(self, instance, nested_data, create=False):
-        """
-        Handle nested create/update operations
-        """
-        for field_name, field_data in nested_data.items():
-            field = self.fields[field_name]
-            field.context['nested_depth'] = self.context.get('nested_depth', 0) + 1
-            field.context['request'] = self.context.get('request')
-
-            if isinstance(field_data, list):
-                self._handle_many_nested(instance, field_name, field_data, field, create)
-            else:
-                self._handle_single_nested(instance, field_name, field_data, field, create)
-
-    def _handle_single_nested(self, instance, field_name, field_data, field, create):
-        """
-        Handle single nested relationship
-        """
-        if field_data is None:
-            return
-
-        related_instance = getattr(instance, field_name, None)
+        """Update an instance with nested many-to-many relationships."""
+        nested_fields = {
+            field_name: validated_data.pop(field_name, [])
+            for field_name in self.nested_many_to_many_fields
+        }
         
-        if create or not related_instance:
-            # Create new related instance
-            field_data['user'] = instance.user
-            serializer = field.__class__(data=field_data, context=field.context)
-            serializer.is_valid(raise_exception=True)
-            related_instance = serializer.save()
-            setattr(instance, field_name, related_instance)
-            instance.save()
-        else:
-            # Update existing related instance
-            serializer = field.__class__(
-                related_instance,
-                data=field_data,
-                partial=True,
-                context=field.context
-            )
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-
-    def _handle_many_nested(self, instance, field_name, field_data, field, create):
-        """
-        Handle many-to-many or one-to-many relationships
-        """
-        related_field = getattr(instance, field_name)
+        # Update the instance using the parent class's update method
+        instance = super().update(instance, validated_data)
         
-        if create:
-            # Create new related instances
-            serializer = field.__class__(
-                data=field_data,
-                many=True,
-                context=field.context
-            )
-            serializer.is_valid(raise_exception=True)
-            related_instances = serializer.save()
-            if isinstance(related_field, models.Manager):
-                related_field.set(related_instances)
-            else:
-                setattr(instance, field_name, related_instances)
-            instance.save()
-        else:
-            # Update existing related instances
-            existing_instances = {
-                str(item.id): item 
-                for item in related_field.all()
-            }
-            
-            to_create = []
-            to_update = []
-            
-            for item_data in field_data:
-                item_id = str(item_data.get('id', ''))
-                if item_id and item_id in existing_instances:
-                    to_update.append((existing_instances[item_id], item_data))
-                else:
-                    to_create.append(item_data)
-
-            # Handle updates
-            for existing, update_data in to_update:
-                serializer = field.__class__(
-                    existing,
-                    data=update_data,
-                    partial=True,
-                    context=field.context
-                )
-                serializer.is_valid(raise_exception=True)
-                serializer.save()
-
-            # Handle creates
-            if to_create:
-                serializer = field.__class__(
-                    data=to_create,
-                    many=True,
-                    context=field.context
-                )
-                serializer.is_valid(raise_exception=True)
-                new_instances = serializer.save()
+        # Handle nested many-to-many fields
+        for field_name, related_data in nested_fields.items():
+            if not related_data:
+                continue
                 
-                if isinstance(related_field, models.Manager):
-                    current = list(related_field.all())
-                    related_field.set(current + list(new_instances))
-                else:
-                    setattr(instance, field_name, new_instances)
-                instance.save()
-
-
-class CombinedSerializer(serializers.Serializer):
-
-    from .simple import (
-        CompanyInformationSerializer,
-        WorkingCapitalSerializer,
-        RevenueDriversSerializer,
-        CostStractureSerializer,
-        AllExpensesSerializer,
-        CapexSerializer,
-        DividendPolicySerializer,
-        IndustryMetricsSerializer,
-        HistoricalFinDataSerializer
-    )
-
-    company_information = CompanyInformationSerializer(required=False)
-    working_capital = WorkingCapitalSerializer(required=False)
-    revenue_drivers = RevenueDriversSerializer(required=False)
-    cost_structure = CostStractureSerializer(required=False)
-    all_expenses = AllExpensesSerializer(required=False)
-    capex = CapexSerializer(required=False)
-    dividend_policy = DividendPolicySerializer(required=False)
-    industry_metrics = IndustryMetricsSerializer(required=False)
-    historical_fin_data = HistoricalFinDataSerializer(required=False)
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._propagate_context(kwargs.get('context', {}))
-
-    def _propagate_context(self, context):
-        for field in self.fields.values():
-            if isinstance(field, serializers.BaseSerializer):
-                field.context.update(context)
-
-    def to_internal_value(self, data):
-        data = self._add_user_to_nested_data(data.copy())
-        return super().to_internal_value(data)
-
-    def _add_user_to_nested_data(self, data, user_id=None):
-        if user_id is None:
-            user_id = self.context['request'].user.id
-
-        if isinstance(data, dict):
-            data['user'] = user_id
-            return {
-                key: self._add_user_to_nested_data(value, user_id)
-                for key, value in data.items()
-            }
-        elif isinstance(data, list):
-            return [self._add_user_to_nested_data(item, user_id) for item in data]
-        return data
-
-    def _update_nested_field(self, instance, field_name, nested_data):
-        related_field = getattr(instance, field_name)
-        model_class = self.fields[field_name].Meta.model
-
-        if isinstance(nested_data, list):
-            existing_items = {str(item.id): item for item in related_field.all()}
-            updated_items = []
-            for item_data in nested_data:
-                item_id = str(item_data.get('id'))
-                if item_id and item_id in existing_items:
-                    item = existing_items[item_id]
-                    for attr, value in item_data.items():
-                        if attr != 'id':
-                            setattr(item, attr, value)
-                    item.save()
-                    updated_items.append(item)
-                else:
-                    new_item = model_class.objects.create(**item_data)
-                    updated_items.append(new_item)
-            related_field.set(updated_items)
-        else:
-            if related_field:
-                for attr, value in nested_data.items():
-                    setattr(related_field, attr, value)
-                related_field.save()
-            else:
-                new_related = model_class.objects.create(**nested_data)
-                setattr(instance, field_name, new_related)
-                instance.save()
-
-    @transaction.atomic
-    def create(self, validated_data):
-        instances = {}
-        
-        for field_name, field_data in validated_data.items():
-            if not field_data:
-                continue
-
-            many_to_many_fields = {}
-            # Separate many-to-many field data
-            for key, value in list(field_data.items()):
-                if isinstance(self.fields[field_name].fields[key], serializers.ListSerializer):
-                    many_to_many_fields[key] = field_data.pop(key)
-
-            model_class = self.fields[field_name].Meta.model
-            # Create the main instance
-            instance = model_class.objects.create(**field_data)
-
-            # Handle many-to-many fields
-            for m2m_field, m2m_data in many_to_many_fields.items():
-                related_serializer = self.fields[field_name].fields[m2m_field].child
-                related_model = related_serializer.Meta.model
-                related_instances = [related_model.objects.create(**item) for item in m2m_data]
-                getattr(instance, m2m_field).set(related_instances)
-
-            instances[field_name] = instance
-
-        return instances
-
-
-    @transaction.atomic
-    def update(self, instance_mapping, validated_data):
-        updated_instances = {}
-        
-        for field_name, field_data in validated_data.items():
-            if not field_data:
-                continue
-
-            many_to_many_fields = {}
-            # Separate many-to-many field data
-            for key, value in list(field_data.items()):
-                if isinstance(self.fields[field_name].fields[key], serializers.ListSerializer):
-                    many_to_many_fields[key] = field_data.pop(key)
-
-            instance = instance_mapping.get(field_name)
-            if instance:
-                # Update main instance
-                for attr, value in field_data.items():
-                    setattr(instance, attr, value)
-                instance.save()
-
-                # Update many-to-many fields
-                for m2m_field, m2m_data in many_to_many_fields.items():
-                    related_serializer = self.fields[field_name].fields[m2m_field].child
-                    related_model = related_serializer.Meta.model
-                    related_instances = [related_model.objects.create(**item) for item in m2m_data]
-                    getattr(instance, m2m_field).set(related_instances)
-
-                updated_instances[field_name] = instance
-
-        return updated_instances
-               
+            related_model = self.fields[field_name].child.Meta.model
+            related_objects = self._bulk_get_or_create_related(related_model, related_data)
+            getattr(instance, field_name).set(related_objects)
+            
+        return instance

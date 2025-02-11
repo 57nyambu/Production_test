@@ -1,3 +1,8 @@
-from django.shortcuts import render
+from apps.financials.views import SmartModelViewSet
+from .serializers import MarketingSerializer
+from .models import Marketing
 
-# Create your views here.
+class MarketingViewSet(SmartModelViewSet):
+    serializer_class = MarketingSerializer
+    queryset = Marketing.objects.all()
+

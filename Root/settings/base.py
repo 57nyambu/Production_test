@@ -98,15 +98,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'Root.wsgi.application'
 
 
-# Database
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
-
-
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases# Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
@@ -159,7 +150,6 @@ AUTH_USER_MODEL = 'accounts.CustomUser'
 # Email conf
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 RESEND_KEY = env('FINARCHITECT_RESEND_KEY')
-DB_URL = str(env('DB_URL'))
 # Security settings
 SECURE_BROWSER_XSS_FILTER = True
 X_FRAME_OPTIONS = 'DENY'
