@@ -1,8 +1,8 @@
-from apps.financials.views import BaseAPIView
+from apps.financials.views import BaseModelAPIView
 from .serializers import MarketingSerializer
 from .models import Marketing
 
-class MarketingAPIView(BaseAPIView):
+class MarketingAPIView(BaseModelAPIView):
     serializer_class = MarketingSerializer
-    model_class = Marketing
+    model = Marketing
 

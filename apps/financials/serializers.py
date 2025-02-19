@@ -46,14 +46,6 @@ class BaseModelSerializer(serializers.ModelSerializer):
         """Override update method to inject the user."""
         validated_data = self._inject_user(validated_data)
         return super().update(instance, validated_data)
-class BlaseModelSerializer(serializers.ModelSerializer):
-    class Meta:
-        fields = ['id', 'user', 'created_at', 'updated_at']
-        read_only_fields = ['id', 'created_at', 'updated_at']
-
-    def create(self, validated_data):
-        validated_data['user'] = self.context['request'].user
-        return super().create(validated_data)
 
 
 class CompanyInformationSerializer(BaseModelSerializer):
