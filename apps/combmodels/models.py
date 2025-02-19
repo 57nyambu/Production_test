@@ -1,5 +1,4 @@
 from django.db import models
-import uuid
 from apps.accounts.models import CustomUser
 from apps.financials.models import BaseModel
 

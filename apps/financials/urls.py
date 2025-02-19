@@ -1,29 +1,26 @@
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
+from django.urls import path
+#from rest_framework.documentation import include_docs_urls
 from .views import (
-    CompanyInformationViewSet,
-    WorkingCapitalViewSet,
-    RevenueDriversViewSet,
-    CostStractureViewSet,
-    AllExpensesViewSet,
-    CapexViewSet,
-    DividendPolicyViewSet,
-    IndustryMetricsViewSet,
-    HistoricalFinDataViewSet,
+    CompanyInformationAPIView,
+    WorkingCapitalAPIView,
+    RevenueDriversAPIView,
+    CostStractureAPIView,
+    AllExpensesAPIView,
+    CapexAPIView,
+    DividendPolicyAPIView,
+    IndustryMetricsAPIView,
+    HistoricalFinDataAPIView,
 )
-
-router = DefaultRouter()
-router.register('company-info', CompanyInformationViewSet)
-router.register('working-capital', WorkingCapitalViewSet)
-router.register('revenue-drivers', RevenueDriversViewSet)
-router.register('cost-stracture', CostStractureViewSet)
-router.register('all-expenses', AllExpensesViewSet)
-router.register('capital-exp', CapexViewSet)
-router.register('dividend-policy', DividendPolicyViewSet)
-router.register('industry-metrics', IndustryMetricsViewSet)
-router.register('historical-fin-data', HistoricalFinDataViewSet)
 
 
 urlpatterns = [
-    path('models/', include(router.urls)),
+    path('company-info/', CompanyInformationAPIView.as_view(), name='company_info'),
+    path('working-capital/', WorkingCapitalAPIView.as_view(), name='working_capital'),
+    path('revenue-drivers/', RevenueDriversAPIView.as_view(), name='revenue_drivers'),
+    path('cost-stracture/', CostStractureAPIView.as_view(), name='cost_stracture'),
+    path('all-expenses/', AllExpensesAPIView.as_view(), name='all_expenses'),
+    path('capex/', CapexAPIView.as_view(), name='capex'),
+    path('dividend-policy/', DividendPolicyAPIView.as_view(), name='dividend_policy'),
+    path('industry-metrics/', IndustryMetricsAPIView.as_view(), name='industry_metrics'),
+    path('historical-fin-data/', HistoricalFinDataAPIView.as_view(), name='historical_fin_data'),
 ]

@@ -32,7 +32,6 @@ INSTALLED_APPS = [
     'apps.accounts',
     'apps.financials',
     'apps.subscriptions',
-    'apps.combmodels',
 
 ]
 
@@ -96,6 +95,15 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'Root.wsgi.application'
+
+
+# Database
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
 
 
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases# Password validation

@@ -2,12 +2,9 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
 from .views import (
-    MarketingViewSet
+    MarketingAPIView
 )
 
-router = DefaultRouter()
-router.register('marketing', MarketingViewSet)
-
 urlpatterns = [
-    path('models/', include(router.urls)),
+    path('marketing/', MarketingAPIView.as_view(), name='marketing'),
 ]

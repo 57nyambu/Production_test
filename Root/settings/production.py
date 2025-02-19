@@ -8,16 +8,7 @@ DEBUG = True
 ALLOWED_HOSTS = ['*']
 
 # Database settings (Make sure the credentials are correct)
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': env('DB_NAME'),
-        'USER': env('DB_USER'),
-        'PASSWORD': env('DB_PASSWORD'),
-        'HOST': env('DB_HOST'),
-        'PORT': env('DB_PORT', default='5432'),
-    }
-}
+DATABASES['default'] = dj_database_url.parse(DB_URL)
 
 # Static and media files
 STATIC_ROOT = BASE_DIR / 'staticfiles'
@@ -56,7 +47,7 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 #    "https://finarchitect.netlify.app",  # Allowing frontend domain hosted on Netlify]
 # ALLOWED_HOSTS = ['finarchitect.onrender.com', 'https://finarchitect.netlify.app', '127.0.0.1', 'localhost']
 
-CORS_ALLOW_ALL_ORIGINS = True
+CRS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOW_CREDENTIALS = True

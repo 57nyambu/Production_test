@@ -1,8 +1,8 @@
-from apps.financials.views import SmartModelViewSet
+from apps.financials.views import BaseAPIView
 from .serializers import MarketingSerializer
 from .models import Marketing
 
-class MarketingViewSet(SmartModelViewSet):
+class MarketingAPIView(BaseAPIView):
     serializer_class = MarketingSerializer
-    queryset = Marketing.objects.all()
+    model_class = Marketing
 

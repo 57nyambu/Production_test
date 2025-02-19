@@ -1,100 +1,201 @@
-from rest_framework import viewsets, status
-from rest_framework.response import Response
-from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
+from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from .serializers import (
+    CompanyInformationSerializer,
+    WorkingCapitalSerializer,
+    RevenueDriversSerializer,
+    CostStractureSerializer,
+    AllExpensesSerializer,
+    CapexSerializer,
+    DividendPolicySerializer,
+    IndustryMetricsSerializer,
+    HistoricalFinDataSerializer,
+)
+from .models import (
+    CompanyInformation,
+    WorkingCapital,
+    RevenueDrivers,
+    CostStracture,
+    AllExpenses,
+    Capex,
+    DividendPolicy,
+    IndustryMetrics,
+    HistoricalFinData,
+)
 
-from .models import (CompanyInformation,
-                     WorkingCapital,
-                     RevenueDrivers,
-                     CostStracture,
-                     AllExpenses,
-                     Capex,
-                     DividendPolicy,
-                     IndustryMetrics,
-                     HistoricalFinData)
-
-from .serializers.simple import (
-        CompanyInformationSerializer,
-        WorkingCapitalSerializer,
-        RevenueDriversSerializer,
-        CostStractureSerializer,
-        AllExpensesSerializer,
-        CapexSerializer,
-        DividendPolicySerializer,
-        IndustryMetricsSerializer,
-        HistoricalFinDataSerializer
-    )
-
-class SmartModelViewSet(viewsets.ModelViewSet):
+class BaseModelAPIView(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
+    http_method_names = ['get', 'post', 'put', 'patch']
+    
+    ERROR_MESSAGES = {
+        'not_found': "Resource not found.",
+        'server_error': "An unexpected error occurred.",
+        'validation_error': "Invalid data provided.",
+        'success_get': "Data retrieved successfully.",
+        'success_create': "Data created successfully.",
+        'success_update': "Data updated successfully."
+    }
+
     def get_queryset(self):
-        return super().get_queryset().filter(user=self.request.user)
+        """Get queryset filtered by current user."""
+        return self.serializer_class.Meta.model.objects.filter(user=self.request.user)
+
+    def create_response(self, success, message, data=None, status_code=status.HTTP_200_OK):
+        """Create standardized response."""
+        response_data = {
+            'success': success,
+            'message': message
+        }
+        if data is not None:
+            response_data['data'] = data
+        return Response(response_data, status=status_code)
+
+    def get(self, request, *args, **kwargs):
+        """Retrieve user's data."""
+        try:
+            queryset = self.get_queryset()
+            serializer = self.get_serializer(queryset.first())
+            return self.create_response(
+                True,
+                self.ERROR_MESSAGES['success_get'],
+                serializer.data
+            )
+        except Exception as e:
+            return self.create_response(
+                False,
+                f"{self.ERROR_MESSAGES['server_error']}: {str(e)}",
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
     @transaction.atomic
-    def create(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
+        """Create new instance."""
         try:
-            # Check existing by unique fields within user's scope
-            unique_fields = {
-                field: request.data.get(field)
-                for fields in self.get_queryset().model._meta.unique_together or []
-                for field in fields
-                if field != 'user' and request.data.get(field)
-            }
-            
-            if unique_fields:
-                instance = self.get_queryset().filter(**unique_fields).select_for_update().get()
-                serializer = self.get_serializer(instance, data=request.data, partial=True)
-                serializer.is_valid(raise_exception=True)
-                self.perform_update(serializer)
-                return Response(serializer.data)
-                
-        except ObjectDoesNotExist:
             serializer = self.get_serializer(data=request.data)
-            serializer.is_valid(raise_exception=True)
-            self.perform_create(serializer)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            if not serializer.is_valid():
+                return self.create_response(
+                    False,
+                    self.ERROR_MESSAGES['validation_error'],
+                    serializer.errors,
+                    status_code=status.HTTP_400_BAD_REQUEST
+                )
 
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+            instance = serializer.save()
+            return self.create_response(
+                True,
+                self.ERROR_MESSAGES['success_create'],
+                serializer.data,
+                status_code=status.HTTP_201_CREATED
+            )
+        except Exception as e:
+            return self.create_response(
+                False,
+                f"{self.ERROR_MESSAGES['server_error']}: {str(e)}",
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
-    def perform_update(self, serializer):
-        serializer.save(user=self.request.user)
+    @transaction.atomic
+    def put(self, request, *args, **kwargs):
+        """Full update of instance."""
+        try:
+            instance = self.get_queryset().first()
+            if not instance:
+                return self.create_response(
+                    False,
+                    self.ERROR_MESSAGES['not_found'],
+                    status_code=status.HTTP_404_NOT_FOUND
+                )
 
+            serializer = self.get_serializer(instance, data=request.data)
+            if not serializer.is_valid():
+                return self.create_response(
+                    False,
+                    self.ERROR_MESSAGES['validation_error'],
+                    serializer.errors,
+                    status_code=status.HTTP_400_BAD_REQUEST
+                )
 
-class CompanyInformationViewSet(SmartModelViewSet):
+            instance = serializer.save()
+            return self.create_response(
+                True,
+                self.ERROR_MESSAGES['success_update'],
+                serializer.data
+            )
+        except Exception as e:
+            return self.create_response(
+                False,
+                f"{self.ERROR_MESSAGES['server_error']}: {str(e)}",
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    @transaction.atomic
+    def patch(self, request, *args, **kwargs):
+        """Partial update of instance."""
+        try:
+            instance = self.get_queryset().first()
+            if not instance:
+                return self.create_response(
+                    False,
+                    self.ERROR_MESSAGES['not_found'],
+                    status_code=status.HTTP_404_NOT_FOUND
+                )
+
+            serializer = self.get_serializer(instance, data=request.data, partial=True)
+            if not serializer.is_valid():
+                return self.create_response(
+                    False,
+                    self.ERROR_MESSAGES['validation_error'],
+                    serializer.errors,
+                    status_code=status.HTTP_400_BAD_REQUEST
+                )
+
+            instance = serializer.save()
+            return self.create_response(
+                True,
+                self.ERROR_MESSAGES['success_update'],
+                serializer.data
+            )
+        except Exception as e:
+            return self.create_response(
+                False,
+                f"{self.ERROR_MESSAGES['server_error']}: {str(e)}",
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+# Individual views inheriting from BaseModelAPIView
+class CompanyInformationAPIView(BaseModelAPIView):
     serializer_class = CompanyInformationSerializer
-    queryset = CompanyInformation.objects.all()
+    model = CompanyInformation
 
-class WorkingCapitalViewSet(SmartModelViewSet):
+class WorkingCapitalAPIView(BaseModelAPIView):
     serializer_class = WorkingCapitalSerializer
-    queryset = WorkingCapital.objects.all()
+    model = WorkingCapital
 
-class RevenueDriversViewSet(SmartModelViewSet):
+class RevenueDriversAPIView(BaseModelAPIView):
     serializer_class = RevenueDriversSerializer
-    queryset = RevenueDrivers.objects.all()
+    model = RevenueDrivers
 
-class CostStractureViewSet(SmartModelViewSet):
+class CostStractureAPIView(BaseModelAPIView):
     serializer_class = CostStractureSerializer
-    queryset = CostStracture.objects.all()
+    model = CostStracture
 
-class AllExpensesViewSet(SmartModelViewSet):
+class AllExpensesAPIView(BaseModelAPIView):
     serializer_class = AllExpensesSerializer
-    queryset = AllExpenses.objects.all()
+    model = AllExpenses
 
-class CapexViewSet(SmartModelViewSet):
+class CapexAPIView(BaseModelAPIView):
     serializer_class = CapexSerializer
-    queryset = Capex.objects.all()
+    model = Capex
 
-class DividendPolicyViewSet(SmartModelViewSet):
+class DividendPolicyAPIView(BaseModelAPIView):
     serializer_class = DividendPolicySerializer
-    queryset = DividendPolicy.objects.all()
+    model = DividendPolicy
 
-class IndustryMetricsViewSet(SmartModelViewSet):
+class IndustryMetricsAPIView(BaseModelAPIView):
     serializer_class = IndustryMetricsSerializer
-    queryset = IndustryMetrics.objects.all()
+    model = IndustryMetrics
 
-class HistoricalFinDataViewSet(SmartModelViewSet):
+class HistoricalFinDataAPIView(BaseModelAPIView):
     serializer_class = HistoricalFinDataSerializer
-    queryset = HistoricalFinData.objects.all()
-    
+    model = HistoricalFinData
