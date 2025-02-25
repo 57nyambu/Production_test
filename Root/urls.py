@@ -9,4 +9,5 @@ urlpatterns = [
     path('api/user-mgt/', include('apps.accounts.urls.user_mgt')),
     path('financials/', include('apps.financials.urls')),
     path('models/', include('apps.combmodels.urls')),
+    path('communications/', include('apps.communications.urls')),
 ]

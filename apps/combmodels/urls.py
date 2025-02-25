@@ -1,10 +1,6 @@
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-
-from .views import (
-    MarketingAPIView
-)
+from django.urls import path
+from .views import MarketingCostView
 
 urlpatterns = [
-    path('marketing/', MarketingAPIView.as_view(), name='marketing'),
+    path('marketing/', MarketingCostView.as_view(), name='Marketing Model')
 ]

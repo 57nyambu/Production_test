@@ -1,76 +1,60 @@
 from django.db import models
-from apps.accounts.models import CustomUser
 from apps.financials.models import BaseModel
 
+class MarketingCost(BaseModel):
+    social_media_ads = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    google_ads = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    physical_marketing = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    bill_boards = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    other_marketing = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    @property
+    def yearly_marketing_cost(self):
+        return (self.social_media_ads or 0 + self.google_ads or 0 + self.physical_marketing or 0 +
+                self.bill_boards or 0 + self.other_marketing or 0) * 12
 
-# MARKETING
-class MarketingType(BaseModel):
-    name = models.CharField(max_length=200)
-    cost = models.DecimalField(max_digits=10, decimal_places=2)
+class CustomerAcquisition(BaseModel):
+    marketing_cost = models.ForeignKey(MarketingCost, on_delete=models.CASCADE)
+    customer_acquisition_cost = models.DecimalField(max_digits=10, decimal_places=2)
+    number_of_subscribers = models.IntegerField(null=True, blank=True)
+    subscriber_1_percentage = models.DecimalField(max_digits=5, decimal_places=2, default=70.0)
+    subscriber_2_percentage = models.DecimalField(max_digits=5, decimal_places=2, default=30.0)
+    
+    @property
+    def calculated_subscribers(self):
+        if self.customer_acquisition_cost > 0:
+            return self.marketing_cost.yearly_marketing_cost / self.customer_acquisition_cost
+        return 0
 
-    def __str__(self):
-        return f"{self.name} {self.cost}"
+class GrowthRate(BaseModel):
+    year = models.IntegerField()
+    growth_rate = models.DecimalField(max_digits=5, decimal_places=2)
 
-
-class Marketing(BaseModel):
-    monthly_market_cost = models.ManyToManyField(MarketingType)
-    yearly_market_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    cust_acq_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    subscript_count = models.PositiveIntegerField(default=0)
-    subscript_dist = models.DecimalField(max_digits=5, decimal_places=2, default=0)
-    growth_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0)
-
-    class Meta:
-        verbose_name = "Marketing"
-        verbose_name_plural = "Marketing"
-
-
-class Customer(BaseModel):
-    # Retention metrics
-    ret_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0)
-    churn_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0)
-    # Engagement metrics
-    active_users = models.PositiveIntegerField(default=0)
-    nps_score = models.DecimalField(max_digits=5, decimal_places=2, default=0)
-    # Acquisition metrics
-    conversion_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0)
-    lead_qual_score = models.DecimalField(max_digits=5, decimal_places=2, default=0)
-
-    class Meta:
-        verbose_name = "Customer"
-        verbose_name_plural = "Customers"
-
-
-class Revenue(BaseModel):
-    growth_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0)
-    avg_sell_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    # Growth and pricing
-    growth_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0)
-    avg_sell_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    #Volume and seasonality
-    units_sold = models.PositiveIntegerField(default=0)
-    seas_factor = models.DecimalField(max_digits=5, decimal_places=2, default=0)
-
-    class Meta:
-        verbose_name = "Revenue"
-        verbose_name_plural = "Revenues"
-
-
-class Operation(BaseModel):
-    # Cost drivers
-    materials_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    labor_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    overhead_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    # Departmental costs
-    sales_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    marketing_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    rd_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    admin_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    # Employee metrics
-    employee_count = models.PositiveIntegerField(default=0)
-    avg_salary = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    sal_growth_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0)
-
-    class Meta:
-        verbose_name = "Operation"
-        verbose_name_plural = "Operations"
+class ClientSegment(BaseModel):
+    segment_name = models.CharField(max_length=255)
+    number_of_clients = models.IntegerField()
+    year = models.IntegerField()
+    
+class CustomerAcquisitionCost(BaseModel):
+    social_media_ads = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    google_ads = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    average_cost_per_click = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    leads_generated = models.IntegerField(null=True, blank=True)
+    percentage_conversion = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    other_marketing_cost = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    offline_customers_acquired = models.IntegerField(null=True, blank=True)
+    organic_customers_acquired = models.IntegerField(null=True, blank=True)
+    
+    @property
+    def number_of_customers(self):
+        if self.percentage_conversion and self.leads_generated:
+            return int(self.leads_generated * (self.percentage_conversion / 100))
+        return 0
+    
+    @property
+    def total_marketing_cost(self):
+        return (self.social_media_ads or 0) + (self.google_ads or 0) + (self.other_marketing_cost or 0)
+    
+    @property
+    def cac(self):
+        total_customers = self.number_of_customers + (self.offline_customers_acquired or 0)
+        return self.total_marketing_cost / total_customers if total_customers > 0 else 0

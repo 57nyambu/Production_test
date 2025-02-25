@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     'apps.financials',
     'apps.subscriptions',
     'apps.combmodels',
+    'apps.communications',
 
 ]
 

@@ -153,3 +153,36 @@ def anyUpdate(user, updateName, link):
     }
 
     email = resend.Emails.send(params)
+
+
+def modelGuide(email, link):
+    link = "https://finarchitect.site"
+    params: resend.Emails.SendParams = {
+    "from": "Finarchitect <guide@finarchitect.site>",
+    "to": [email],
+    "subject": "Your Guide to Financial Modeling",
+    "html": f"""
+        <html>
+        <body>
+            <h1>Your Guide to Financial Modeling</h1>
+            <p>Financial modeling is an essential tool for making informed business decisions and planning for the future. 
+            Whether you're a seasoned financial professional or new to the world of finance, our comprehensive guide will help you navigate the intricacies of financial decisions
+            with our statistical based financial models.</p>
+            <p>Click the link below to access your free guide:</p>
+            <p><a href="{link}" style="
+                background-color: #007bff;
+                color: white;
+                padding: 10px 20px;
+                text-decoration: none;
+                border-radius: 5px;
+                display: inline-block;
+                margin: 20px 0;
+            <p>If you have any questions or need assistance, 
+            <p>feel free to reach out to our support team at <a href="tom@finarchitect.site">Support</a></p>
+            <p>Best Regards,</p>
+            <p>The Finarchitect Team</p>
+        </body>
+        </html>
+    """
+    }
+    email = resend.Emails.send(params)

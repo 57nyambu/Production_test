@@ -82,8 +82,9 @@ CORS_ALLOW_HEADERS = [
 ]
 
 # Secure cookies: Ensure CSRF and session cookies are transmitted securely over HTTPS
-CSRF_COOKIE_SECURE = False # Enable this for production
-SESSION_COOKIE_SECURE = False # Enable this for production
+CSRF_COOKIE_SECURE = True # Enable this for production
+SESSION_COOKIE_SECURE = True # Enable this for production
+CSRF_COOKIE_SAMESITE = 'Lax'
 
 # Enforce HTTPS and prevent HTTP traffic
 SECURE_SSL_REDIRECT = False

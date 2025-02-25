@@ -1,8 +1,23 @@
-from apps.financials.views import BaseModelAPIView
-from .serializers import MarketingSerializer
-from .models import Marketing
+from apps.utils.baseViews import BaseModelAPIView
+from .serializers import (
+    MarketingCostSerializer,
+    CustomerAcquisitionSerializer,
+    GrowthRateSerializer,
+    ClientSegmentSerializer,
+    CustomerAcquisitionCostSerializer,
+    CombinedMarketSerializer
+)
+from .models import (
+    MarketingCost,
+    CustomerAcquisition,
+    GrowthRate,
+    ClientSegment,
+    CustomerAcquisitionCost
+)
 
-class MarketingAPIView(BaseModelAPIView):
-    serializer_class = MarketingSerializer
-    model = Marketing
+class MarketingCostView(BaseModelAPIView):
+    serializer_class = MarketingCostSerializer
+    model = MarketingCost
 
+class CombinedMarketView(BaseModelAPIView):
+    pass
