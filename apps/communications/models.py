@@ -13,8 +13,10 @@ class RecievedEmails(models.Model):
 class Emails(models.Model):
     email = models.EmailField(unique=True)
     type = models.TextField(max_length=120, default='Potential Cust')
+    is_registered = models.BooleanField(default=False)
+    is_subscribed = models.BooleanField(default=False)
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.name
+        return self.email
 

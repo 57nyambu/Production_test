@@ -3,10 +3,10 @@ from rest_framework.routers import DefaultRouter
 
 from .views import (
     EmailsAPIView,
-    RecievedEmailsAPIView
+    EmailsListAPIView
 )
 
 urlpatterns = [
     path('emails/', EmailsAPIView.as_view(), name='emails'),
-    path('recievedemails/', RecievedEmailsAPIView.as_view(), name='recievedemails'),
+    path('available-emails/', EmailsListAPIView.as_view(), name='Available-emails'),
 ]

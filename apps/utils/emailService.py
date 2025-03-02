@@ -1,7 +1,7 @@
 import resend
-from Root.settings import base
+from Root.settings.base import RESEND_KEY
 
-resend.api_key = base.RESEND_KEY
+resend.api_key = RESEND_KEY
 
 
 def welcomeEmail(user):
@@ -155,11 +155,11 @@ def anyUpdate(user, updateName, link):
     email = resend.Emails.send(params)
 
 
-def modelGuide(email):
+def modelGuide(user):
     link = "https://finarchitect.site"
     params: resend.Emails.SendParams = {
     "from": "Finarchitect <guide@finarchitect.site>",
-    "to": [email],
+    "to": [user],
     "subject": "Your Guide to Financial Modeling",
     "html": f"""
         <html>
@@ -185,4 +185,5 @@ def modelGuide(email):
         </html>
     """
     }
+
     email = resend.Emails.send(params)
