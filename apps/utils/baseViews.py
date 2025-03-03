@@ -1,143 +1,131 @@
-from django.db import transaction
-from rest_framework import generics, status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework import status
+from django.db import transaction
+from django.core.exceptions import ImproperlyConfigured
+from rest_framework.permissions import IsAuthenticated
 
-class BaseModelAPIView(generics.GenericAPIView):
+class BaseAPIView(APIView):
+    """Base API View that ensures:
+    - Resources are created only once per user (switches to PATCH if they exist).
+    - Works seamlessly with BaseCombinedSerializer.
+    - Provides standardized response format with success, message, and data.
+    """
+    model = None
+    serializer_class = None
     permission_classes = [IsAuthenticated]
-    http_method_names = ['get', 'post', 'put', 'patch']
     
-    ERROR_MESSAGES = {
-        'not_found': "Resource not found.",
-        'server_error': "An unexpected error occurred.",
-        'validation_error': "Invalid data provided.",
-        'success_get': "Data retrieved successfully.",
-        'success_create': "Data created successfully.",
-        'success_update': "Data updated successfully."
-    }
-
-    def get_queryset(self):
-        """Get queryset filtered by current user."""
-        return self.serializer_class.Meta.model.objects.filter(user=self.request.user)
-
-    def create_response(self, success, message, data=None, status_code=status.HTTP_200_OK):
-        """Create standardized response."""
-        response_data = {
-            'success': success,
-            'message': message
+    def get_instance(self, request):
+        """Retrieve the user's instance if it exists, otherwise return None."""
+        if not self.model:
+            raise ImproperlyConfigured("Model must be defined")
+        
+        return self.model.objects.filter(user=request.user).first()
+    
+    def format_response(self, data=None, message="", success=True, status_code=status.HTTP_200_OK):
+        """Format standardized API response."""
+        response = {
+            "success": success,
+            "message": message,
+            "data": data or {}
         }
-        if data is not None:
-            response_data['data'] = data
-        return Response(response_data, status=status_code)
-
+        return Response(response, status=status_code)
+    
     def get(self, request, *args, **kwargs):
-        """Retrieve user's data."""
-        try:
-            queryset = self.get_queryset()
-            serializer = self.get_serializer(queryset.first())
-            return self.create_response(
-                True,
-                self.ERROR_MESSAGES['success_get'],
-                serializer.data
+        """Retrieve existing instance data."""
+        instance = self.get_instance(request)
+        if not instance:
+            return self.format_response(
+                message="No data found", 
+                success=False,
+                status_code=status.HTTP_404_NOT_FOUND
             )
-        except Exception as e:
-            return self.create_response(
-                False,
-                f"{self.ERROR_MESSAGES['server_error']}: {str(e)}",
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+
+        serializer = self.serializer_class(instance, context={'request': request})
+        return self.format_response(
+            data=serializer.data,
+            message="Data retrieved successfully",
+            success=True
+        )
 
     @transaction.atomic
     def post(self, request, *args, **kwargs):
-        """Create new instance."""
-        try:
-            serializer = self.get_serializer(data=request.data)
-            if not serializer.is_valid():
-                return self.create_response(
-                    False,
-                    self.ERROR_MESSAGES['validation_error'],
-                    serializer.errors,
-                    status_code=status.HTTP_400_BAD_REQUEST
-                )
+        """Create new resource or update if it exists."""
+        instance = self.get_instance(request)
 
-            instance = serializer.save()
-            return self.create_response(
-                True,
-                self.ERROR_MESSAGES['success_create'],
-                serializer.data,
-                status_code=status.HTTP_201_CREATED
-            )
-        except Exception as e:
-            return self.create_response(
-                False,
-                f"{self.ERROR_MESSAGES['server_error']}: {str(e)}",
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+        if instance:
+            # If instance exists, switch to PATCH
+            return self.patch(request, *args, **kwargs)
 
-    @transaction.atomic
-    def put(self, request, *args, **kwargs):
-        """Full update of instance."""
-        try:
-            instance = self.get_queryset().first()
-            if not instance:
-                return self.create_response(
-                    False,
-                    self.ERROR_MESSAGES['not_found'],
-                    status_code=status.HTTP_404_NOT_FOUND
-                )
-
-            serializer = self.get_serializer(instance, data=request.data)
-            if not serializer.is_valid():
-                return self.create_response(
-                    False,
-                    self.ERROR_MESSAGES['validation_error'],
-                    serializer.errors,
-                    status_code=status.HTTP_400_BAD_REQUEST
-                )
-
-            instance = serializer.save()
-            return self.create_response(
-                True,
-                self.ERROR_MESSAGES['success_update'],
-                serializer.data
+        serializer = self.serializer_class(data=request.data, context={'request': request})
+        if not serializer.is_valid():
+            return self.format_response(
+                data={"errors": serializer.errors},
+                message="Validation error",
+                success=False,
+                status_code=status.HTTP_400_BAD_REQUEST
             )
-        except Exception as e:
-            return self.create_response(
-                False,
-                f"{self.ERROR_MESSAGES['server_error']}: {str(e)}",
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+        
+        # This will use the BaseCombinedSerializer's create method which 
+        # handles nested relationships through _handle_nested_relations
+        instance = serializer.save(user=request.user)
+
+        return self.format_response(
+            data=serializer.data,
+            message="Data created successfully",
+            success=True,
+            status_code=status.HTTP_201_CREATED
+        )
 
     @transaction.atomic
     def patch(self, request, *args, **kwargs):
-        """Partial update of instance."""
-        try:
-            instance = self.get_queryset().first()
-            if not instance:
-                return self.create_response(
-                    False,
-                    self.ERROR_MESSAGES['not_found'],
-                    status_code=status.HTTP_404_NOT_FOUND
-                )
-
-            serializer = self.get_serializer(instance, data=request.data, partial=True)
-            if not serializer.is_valid():
-                return self.create_response(
-                    False,
-                    self.ERROR_MESSAGES['validation_error'],
-                    serializer.errors,
-                    status_code=status.HTTP_400_BAD_REQUEST
-                )
-
-            instance = serializer.save()
-            return self.create_response(
-                True,
-                self.ERROR_MESSAGES['success_update'],
-                serializer.data
+        """Update existing resource."""
+        instance = self.get_instance(request)
+        if not instance:
+            return self.format_response(
+                message="Instance not found",
+                success=False,
+                status_code=status.HTTP_404_NOT_FOUND
             )
-        except Exception as e:
-            return self.create_response(
-                False,
-                f"{self.ERROR_MESSAGES['server_error']}: {str(e)}",
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+
+        serializer = self.serializer_class(
+            instance, 
+            data=request.data, 
+            partial=True, 
+            context={'request': request}
+        )
+        if not serializer.is_valid():
+            return self.format_response(
+                data={"errors": serializer.errors},
+                message="Validation error",
+                success=False,
+                status_code=status.HTTP_400_BAD_REQUEST
             )
+        
+        # This will use the BaseCombinedSerializer's update method which 
+        # handles nested relationships through _handle_nested_relations
+        instance = serializer.save()
+
+        return self.format_response(
+            data=serializer.data,
+            message="Data updated successfully",
+            success=True
+        )
+            
+    @transaction.atomic
+    def delete(self, request, *args, **kwargs):
+        """Delete existing resource."""
+        instance = self.get_instance(request)
+        if not instance:
+            return self.format_response(
+                message="Instance not found",
+                success=False,
+                status_code=status.HTTP_404_NOT_FOUND
+            )
+            
+        instance.delete()
+        
+        return self.format_response(
+            message="Data deleted successfully",
+            success=True
+        )

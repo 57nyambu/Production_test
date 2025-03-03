@@ -6,5 +6,5 @@ from .models import (
 
 )
 
-admin.site.register(CompanyInformation)
+admin.site.register(Capex)
 

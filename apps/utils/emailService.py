@@ -155,7 +155,7 @@ def anyUpdate(user, updateName, link):
     email = resend.Emails.send(params)
 
 
-def modelGuide(email, link):
+def modelGuide(email):
     link = "https://finarchitect.site"
     params: resend.Emails.SendParams = {
     "from": "Finarchitect <guide@finarchitect.site>",
