@@ -14,6 +14,26 @@ class BaseCombinedSerializer(serializers.ModelSerializer):
         fields = ['id', 'created_at', 'updated_at']
         read_only_fields = ['id', 'created_at', 'updated_at']
 
+
+    def to_representation(self, instance):
+        """Customize response to exclude `id` and `created_at`."""
+        data = super().to_representation(instance)
+        
+        # Remove unwanted fields
+        data.pop("id", None)
+        # Recursively clean nested fields (Many-to-Many & ForeignKey)
+        for field_name, field_value in data.items():
+            if isinstance(field_value, list):
+                data[field_name] = [
+                    {k: v for k, v in item.items() if k not in ["id"]}
+                    for item in field_value
+                ]
+            elif isinstance(field_value, dict):
+                data[field_name] = {k: v for k, v in field_value.items() if k not in ["id"]}
+
+        return data
+
+
     def _handle_nested_relations(self, instance, validated_data, partial=False):
         """Handles Many-to-Many and ForeignKey nested relations properly.
         

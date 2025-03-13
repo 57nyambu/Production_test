@@ -18,15 +18,22 @@ class NotificationView(APIView):
 
 class EmailsAPIView(APIView):
     def post(self, request):
-        serializer = EmailRequestSerializer(data=request.data)
-        if serializer.is_valid():
-            email_data = serializer.validated_data  # Save first
-            modelGuide(email_data['email'])
-            email_data = serializer.save()
-
-            return Response(status=status.HTTP_201_CREATED)
-        return Response(status=status.HTTP_200_OK)
-
+        try:
+            serializer = EmailRequestSerializer(data=request.data)
+            if serializer.is_valid():
+                email_data = serializer.validated_data
+                
+                modelGuide(email_data['email'])
+                    
+                # Save the email data regardless of sending success
+                email_data = serializer.save()
+                
+                return Response({"message": "Email processed"}, status=status.HTTP_201_CREATED)
+            else:
+                return Response({"message": "Request processed"}, status=status.HTTP_200_OK)
+                
+        except Exception as e:
+            return Response({"message": "Request processed"}, status=status.HTTP_200_OK)
 
 class EmailsListAPIView(APIView):
     def get(self, request):

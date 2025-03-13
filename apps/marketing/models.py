@@ -12,37 +12,19 @@ class BaseModel(models.Model):
         abstract = True
 
 class MarketingMetrics(BaseModel):
-    fiscal_year = models.IntegerField(unique=True)  # Ensure unique fiscal year
+    marketing_components = models.ManyToManyField('MarketingComponent')
+    monthly_marketing_cost = models.DecimalField(max_digits=15, decimal_places=2)
     yearly_marketing_cost = models.DecimalField(max_digits=15, decimal_places=2, default=0.00)
     number_of_months_in_year = models.IntegerField(default=12)
-    monthly_marketing_cost = models.DecimalField(max_digits=15, decimal_places=2, editable=False)
+    
     cac = models.DecimalField(max_digits=15, decimal_places=2)  # Customer Acquisition Cost
-    new_monthly_customers = models.IntegerField(editable=False)  # Auto-calculated field
-
-    def save(self, *args, **kwargs):
-        # Calculate yearly marketing cost based on related components
-        total_cost = sum(self.marketing_components.values_list('cost', flat=True))
-        self.yearly_marketing_cost = total_cost
-        self.monthly_marketing_cost = self.yearly_marketing_cost / self.number_of_months_in_year
-
-        # Ensure new_monthly_customers is not None
-        self.new_monthly_customers = self.new_monthly_customers or 0
-
-
-        # Ensure number_of_customers is calculated safely
-        self.number_of_customers = (
-            int(self.monthly_marketing_cost / self.cac) if self.cac > 0 else 0
-        )
-
-        super().save(*args, **kwargs)
-
+    new_monthly_customers = models.PositiveIntegerField()
+    growth_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
 
     def __str__(self):
-        return f"Marketing Metrics for FY{self.fiscal_year}"
-
+        return f"Annual marketing cost {self.yearly_marketing_cost}"
 
 class MarketingComponent(BaseModel):
-    marketing_metrics = models.ForeignKey(MarketingMetrics, related_name="marketing_components", on_delete=models.CASCADE)
     type = models.CharField(max_length=255)  # Example: "Social Media Ads", "Google Ads"
     cost = models.DecimalField(max_digits=15, decimal_places=2, default=0.00)
 
