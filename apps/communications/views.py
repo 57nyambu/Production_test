@@ -6,16 +6,26 @@ from rest_framework import status
 from apps.utils.emailService import modelGuide
 
 
+from datetime import datetime
+
+class NotificationView(APIView):
+    def get(self, request):
+        latest_notification = {
+            'message': 'New feature available!',
+            'timestamp': datetime.now().isoformat()
+        }
+        return Response(latest_notification)
+
 class EmailsAPIView(APIView):
     def post(self, request):
         serializer = EmailRequestSerializer(data=request.data)
         if serializer.is_valid():
-            email_obj = serializer.save()  # Save first
-        
-            modelGuide(email_obj.email)  # Pass only the email string
+            email_data = serializer.validated_data  # Save first
+            modelGuide(email_data['email'])
+            email_data = serializer.save()
 
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(status=status.HTTP_201_CREATED)
+        return Response(status=status.HTTP_200_OK)
 
 
 class EmailsListAPIView(APIView):

@@ -38,7 +38,6 @@ class RegisterUserView(APIView):
             user = serializer.data 
             response = Response({ 
                 'success': True,
-                'data': user, 
                 'message': "User created!", 
                 }, status=status.HTTP_201_CREATED) 
             response['Content-Type'] = 'application/json' 

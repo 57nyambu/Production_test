@@ -17,7 +17,7 @@ class MarketingMetrics(BaseModel):
     number_of_months_in_year = models.IntegerField(default=12)
     monthly_marketing_cost = models.DecimalField(max_digits=15, decimal_places=2, editable=False)
     cac = models.DecimalField(max_digits=15, decimal_places=2)  # Customer Acquisition Cost
-    number_of_customers = models.IntegerField(editable=False)  # Auto-calculated field
+    new_monthly_customers = models.IntegerField(editable=False)  # Auto-calculated field
 
     def save(self, *args, **kwargs):
         # Calculate yearly marketing cost based on related components
@@ -25,12 +25,17 @@ class MarketingMetrics(BaseModel):
         self.yearly_marketing_cost = total_cost
         self.monthly_marketing_cost = self.yearly_marketing_cost / self.number_of_months_in_year
 
-        # Avoid division by zero
+        # Ensure new_monthly_customers is not None
+        self.new_monthly_customers = self.new_monthly_customers or 0
+
+
+        # Ensure number_of_customers is calculated safely
         self.number_of_customers = (
             int(self.monthly_marketing_cost / self.cac) if self.cac > 0 else 0
         )
 
         super().save(*args, **kwargs)
+
 
     def __str__(self):
         return f"Marketing Metrics for FY{self.fiscal_year}"
