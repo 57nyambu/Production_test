@@ -2,9 +2,10 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from django.db import models
 from django.db import transaction
+from typing import Dict, Type, Any
+from django.db.models import Model
 
-class BaseModelSerializer():
-    pass
+
 
 class BaseCombinedSerializer(serializers.ModelSerializer):
     """Base serializer to handle nested and many-to-many relationships."""

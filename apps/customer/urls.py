@@ -1,7 +1,7 @@
 from django.urls import path
-from .views import CustomerModelView, CustomerPercentageDistributionView
+from .views import CustomerModelView, GrowthRateView
 
 urlpatterns = [
-    path("customer-model/", CustomerModelView.as_view(), name="customer-model"),
-    path("customer-percentage-distribution/", CustomerPercentageDistributionView.as_view(), name="customer-percentage-distribution"),
+    path("customer/", CustomerModelView.as_view(), name="customer-model"),
+    path("growth-rate/", GrowthRateView.as_view(), name="growth-rate"),
 ]

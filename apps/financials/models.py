@@ -38,7 +38,7 @@ class RevenueStream(BaseModel):
         return f"{self.name} ({self.type})"
 
 class RevenueDrivers(BaseModel):
-    average_selling_price = models.DecimalField(max_digits=10, decimal_places=2)
+    percentage_comm = models.DecimalField(max_digits=5, decimal_places=2) 
     units_sold = models.PositiveIntegerField()
     revenue_streams = models.ManyToManyField(RevenueStream)
 
