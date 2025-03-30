@@ -81,9 +81,8 @@ class AdminMarketingExp(BaseModel):
         return f"{self.exp_type} (Amount: {self.amount})"
 
 class AllExpenses(BaseModel):
-    average_selling_price = models.DecimalField(max_digits=10, decimal_places=2)
-    units_sold = models.PositiveIntegerField()
     employee_info = models.ManyToManyField(EmployeeInfo)
+    salary_growth_rate = models.DecimalField(max_digits=5, decimal_places=2)
     admin_marketing_exp = models.ManyToManyField(AdminMarketingExp)
 
     def __str__(self):

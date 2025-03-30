@@ -90,7 +90,7 @@ class AllExpensesSerializer(BaseCombinedSerializer):
     class Meta(BaseCombinedSerializer.Meta):
         model = AllExpenses
         fields = BaseCombinedSerializer.Meta.fields + [
-            'employee_info', 'average_selling_price', 'units_sold', 'admin_marketing_exp'
+            'employee_info', 'salary_growth_rate', 'admin_marketing_exp'
         ]
 
 

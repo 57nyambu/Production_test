@@ -24,3 +24,5 @@ class MarketingMetricsSerializer(BaseCombinedSerializer):
             'cac', 'new_monthly_customers', 'growth_rate'
         ]
 
+
+

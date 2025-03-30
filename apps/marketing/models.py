@@ -15,7 +15,6 @@ class MarketingMetrics(BaseModel):
     marketing_components = models.ManyToManyField('MarketingComponent')
     monthly_marketing_cost = models.DecimalField(max_digits=15, decimal_places=2)
     yearly_marketing_cost = models.DecimalField(max_digits=15, decimal_places=2, default=0.00)
-    number_of_months_in_year = models.IntegerField(default=12)
     
     cac = models.DecimalField(max_digits=15, decimal_places=2, null=True)  # Customer Acquisition Cost
     new_monthly_customers = models.PositiveIntegerField()
