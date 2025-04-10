@@ -54,7 +54,7 @@ class RevenueDriversSerializer(BaseCombinedSerializer):
     class Meta(BaseCombinedSerializer.Meta):
         model = RevenueDrivers
         fields = BaseCombinedSerializer.Meta.fields + [
-            'percentage_comm', 'units_sold', 'revenue_streams'
+            'percentage_comm', 'units_sold', 'revenue_streams', 'q1', 'q2', 'q3', 'q4'
         ]
 
 

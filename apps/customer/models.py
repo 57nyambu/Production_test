@@ -16,13 +16,26 @@ class BaseModel(models.Model):
 
 
 class CustomerModel(BaseModel):
-    churn_rate = models.DecimalField(default=0.00, max_digits=5, decimal_places=2)
-    customer_type = models.CharField(default='Organic', max_length=255)
+    growth_rate = models.DecimalField(default=0, max_digits=5, decimal_places=2)
+    churn_rate = models.ManyToManyField('ChurnRate', related_name="customer_model")
+    cust_distribution = models.ManyToManyField('CustomerDistribution', related_name="customer_model")
     beginning_client = models.PositiveIntegerField(default=0)
+    # Acquisition metrics
     conversion_rate = models.DecimalField(default=0.00, max_digits=5, decimal_places=2)
     organic_client = models.PositiveIntegerField(default=0)
 
     def __str__(self):
-        return f"Customer Type: {self.customer_type}"
-
+        return f"Customer Type: {self.beginning_client}"
     
+
+class CustomerDistribution(BaseModel):
+    customer_type = models.CharField(max_length=255)
+    percentage = models.DecimalField(max_digits=5, decimal_places=2)
+
+    def __str__(self):
+        return f"{self.customer_type} - {self.percentage}%"
+    
+
+class ChurnRate(BaseModel):
+    year = models.PositiveIntegerField()
+    churn_rate = models.DecimalField(max_digits=5, decimal_places=2)

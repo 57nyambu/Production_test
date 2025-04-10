@@ -41,10 +41,14 @@ class RevenueDrivers(BaseModel):
     percentage_comm = models.DecimalField(max_digits=5, decimal_places=2) 
     units_sold = models.PositiveIntegerField()
     revenue_streams = models.ManyToManyField(RevenueStream)
+    # Quartely seasonality
+    q1 = models.DecimalField(max_digits=5, decimal_places=2)
+    q2 = models.DecimalField(max_digits=5, decimal_places=2)
+    q3 = models.DecimalField(max_digits=5, decimal_places=2)
+    q4 = models.DecimalField(max_digits=5, decimal_places=2)
 
     def __str__(self):
         return f"Revenue Drivers (ASP: {self.average_selling_price}, Units Sold: {self.units_sold})"
-
 
 
 # Revenue & Expenses

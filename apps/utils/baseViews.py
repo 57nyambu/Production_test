@@ -130,7 +130,37 @@ class BaseAPIView(APIView):
             message="Data deleted successfully",
             success=True
         )
-    
+
+
+class BaseReadOnlyView(APIView):
+    """Base view to handle read-only operations for models with the provided serializer."""
+    permission_classes = [IsAuthenticated]
+    serializer_class = None
+    model_class = None
+
+    def get(self, request, *args, **kwargs):
+        """Handle GET request for read-only views."""
+        try:
+            instance = self.model_class.objects.filter(user=request.user).first()
+
+            if not instance:
+                return Response(
+                    {"success": False, "error": f"No data found for {self.model_class.__name__}."},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+
+            serializer = self.serializer_class(instance)
+
+            return Response(
+                {"success": True, "data": [serializer.data]},
+                status=status.HTTP_200_OK
+            )
+        except Exception as e:
+            return Response(
+                {"success": False, "error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
 
 class BaseGetAPIView(APIView):
     """
