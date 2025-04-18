@@ -18,7 +18,7 @@ class CustomerDistributionSerializer(BaseCombinedSerializer):
 class ChurnRateSerializer(BaseCombinedSerializer):
     class Meta(BaseCombinedSerializer.Meta):
         model = ChurnRate
-        fields = BaseCombinedSerializer.Meta.fields + ['year', 'churn_rate']
+        fields = BaseCombinedSerializer.Meta.fields + ['year', 'rate']
 
 
 class CustomerModelSerializer(BaseCombinedSerializer):
@@ -27,7 +27,22 @@ class CustomerModelSerializer(BaseCombinedSerializer):
     class Meta(BaseCombinedSerializer.Meta):
         model = CustomerModel
         fields = BaseCombinedSerializer.Meta.fields + [
-            "growth_rate", "churn_rate", "cust_distribution", "beginning_client", "conversion_rate", "organic_client"
+            "churn_rate", "cust_distribution", "beginning_client", "conversion_rate", "organic_client"
         ]        
 
 
+class OrganicCustomerGrowthProjectionSerializer(serializers.Serializer):
+    """Serializer for online customer growth projection."""
+    year = serializers.IntegerField()
+    customers = serializers.IntegerField()
+
+
+class OrganicCustomerChurnRateSerializer(serializers.Serializer):
+    """Serializer for online customer churn rate."""
+    year = serializers.IntegerField()
+    rate = serializers.DecimalField(max_digits=5, decimal_places=2)
+
+
+class OrganicCustDistributionSerializer(serializers.Serializer):
+    customer_type = serializers.CharField()
+    percentage = serializers.DecimalField(max_digits=5, decimal_places=2)

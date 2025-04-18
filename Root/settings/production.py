@@ -2,7 +2,7 @@ import dj_database_url
 from Root.settings.base import *
 
 # Set DEBUG to False for production
-DEBUG = True
+DEBUG = False
 
 # Allowed hosts: Set this to your production domain
 ALLOWED_HOSTS = ['*']
