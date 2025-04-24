@@ -4,7 +4,6 @@ from rest_framework import status
 from django.db import transaction
 from django.core.exceptions import ImproperlyConfigured
 from rest_framework.permissions import IsAuthenticated
-from typing import Type, Dict, Any, Callable
 
 class BaseAPIView(APIView):
     """Base API View that ensures:
@@ -160,51 +159,3 @@ class BaseReadOnlyView(APIView):
                 {"success": False, "error": str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-
-
-class BaseGetAPIView(APIView):
-    """
-    Base API View that ensures:
-    - Standardized GET response format.
-    - Works with both single and multiple records.
-    - Provides success, message, and data fields in the response.
-    """
-    model = None
-    serializer_class = None
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self, request):
-        """
-        Override this method in child views to return multiple records if needed.
-        Default: Returns only the first instance for the logged-in user.
-        """
-        if not self.model:
-            raise ImproperlyConfigured("Model must be defined")
-        
-        return self.model.objects.filter(user=request.user)
-
-    def format_response(self, data=None, message="", success=True, status_code=status.HTTP_200_OK):
-        """Format standardized API response."""
-        return Response({
-            "success": success,
-            "message": message,
-            "data": data if data else {}
-        }, status=status_code)
-
-    def get(self, request, *args, **kwargs):
-        """Retrieve instance(s) based on the queryset."""
-        queryset = self.get_queryset(request)
-
-        if not queryset.exists():
-            return self.format_response(
-                message="No data found", 
-                success=False, 
-                status_code=status.HTTP_404_NOT_FOUND
-            )
-
-        serializer = self.serializer_class(queryset, many=queryset.count() > 1, context={'request': request})
-        return self.format_response(
-            data=serializer.data,
-            message="Data retrieved successfully",
-            success=True
-        )

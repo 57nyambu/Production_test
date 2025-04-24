@@ -22,12 +22,12 @@ class ChurnRateSerializer(BaseCombinedSerializer):
 
 
 class CustomerModelSerializer(BaseCombinedSerializer):
-    cust_distribution = CustomerDistributionSerializer(many=True, required=False)
+    cust_type = CustomerDistributionSerializer(many=True, required=False)
     churn_rate = ChurnRateSerializer(many=True, required=False)
     class Meta(BaseCombinedSerializer.Meta):
         model = CustomerModel
         fields = BaseCombinedSerializer.Meta.fields + [
-            "churn_rate", "cust_distribution", "beginning_client", "conversion_rate", "organic_client"
+            "churn_rate", "cust_type", "beginning_client", "conversion_rate", "organic_client"
         ]        
 
 

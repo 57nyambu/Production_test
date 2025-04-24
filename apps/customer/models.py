@@ -16,7 +16,7 @@ class BaseModel(models.Model):
 
 
 class CustomerModel(BaseModel):
-    cust_distribution = models.ManyToManyField('CustomerDistribution', related_name="customer_model")
+    cust_type = models.ManyToManyField('CustomerDistribution', related_name="customer_model")
     churn_rate = models.ManyToManyField('ChurnRate', related_name="customer_model")
     beginning_client = models.PositiveIntegerField(default=0)
     # Acquisition metrics

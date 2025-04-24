@@ -1,16 +1,13 @@
-from .models import CustomerModel, CustomerDistribution, ChurnRate
-from apps.marketing.models import MarketingMetrics, GrowthRate
+from .models import CustomerModel, ChurnRate
+from apps.marketing.models import GrowthRate
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
 from .serializers import (
     CustomerModelSerializer,
-    OrganicCustomerChurnRateSerializer,
-    OrganicCustomerGrowthProjectionSerializer,
-    OrganicCustDistributionSerializer
 )
-from apps.utils.baseViews import BaseAPIView, BaseReadOnlyView
+from apps.utils.baseViews import BaseAPIView
 
 class CustomerModelView(BaseAPIView):
     model = CustomerModel
@@ -31,9 +28,9 @@ class OrganicCustomerMetricsView(APIView):
         beginning_client = customer_model.beginning_client
 
         # Filter for organic customers
-        organic_distribution = customer_model.cust_distribution.filter(customer_type='organic').first()
+        organic_distribution = customer_model.cust_type.filter(customer_type='online').first()
         if not organic_distribution:
-            return Response({"success": False, "message": "No organic customer data found."})
+            return Response({"success": False, "message": "No online customer data found."})
 
         organic_percentage = organic_distribution.percentage / 100  # Convert to decimal
 
@@ -42,11 +39,11 @@ class OrganicCustomerMetricsView(APIView):
 
         # Calculate growth for the logged-in user
         growth_rates = GrowthRate.objects.filter(user=request.user).order_by('year')
-        organic_cust_growth = []
+        online_cust_growth = []
         current_customers = organic_clients
         for growth in growth_rates:
             growth_customers = int(current_customers * (1 + growth.rate / 100))
-            organic_cust_growth.append({
+            online_cust_growth.append({
                 "year": growth.year,
                 "customers": growth_customers
             })
@@ -54,11 +51,11 @@ class OrganicCustomerMetricsView(APIView):
 
         # Calculate churn for the logged-in user
         churn_rates = ChurnRate.objects.filter(user=request.user).order_by('year')
-        organic_cust_churn = []
+        online_cust_churn = []
         current_customers = organic_clients
         for churn in churn_rates:
             remaining_customers = int(current_customers * (1 - churn.rate / 100))
-            organic_cust_churn.append({
+            online_cust_churn.append({
                 "year": churn.year,
                 "customers": remaining_customers
             })
@@ -67,7 +64,7 @@ class OrganicCustomerMetricsView(APIView):
         # Response data
         data = {
             "beginning_client": beginning_client,  # Add beginning_client to the response
-            "organic_cust_growth": organic_cust_growth,
-            "organic_cust_churn": organic_cust_churn
+            "online_cust_growth": online_cust_growth,
+            "online_cust_churn": online_cust_churn
         }
         return Response({"success": True, "data": data})
