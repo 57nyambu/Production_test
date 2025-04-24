@@ -16,8 +16,8 @@ class BaseModel(models.Model):
 
 
 class CustomerModel(BaseModel):
-    churn_rate = models.ManyToManyField('ChurnRate', related_name="customer_model")
     cust_distribution = models.ManyToManyField('CustomerDistribution', related_name="customer_model")
+    churn_rate = models.ManyToManyField('ChurnRate', related_name="customer_model")
     beginning_client = models.PositiveIntegerField(default=0)
     # Acquisition metrics
     conversion_rate = models.DecimalField(default=0.00, max_digits=5, decimal_places=2)
@@ -36,5 +36,5 @@ class CustomerDistribution(BaseModel):
     
 
 class ChurnRate(BaseModel):
-    year = models.PositiveIntegerField()
+    year = models.CharField(max_length=255)
     rate = models.DecimalField(max_digits=5, decimal_places=2)
