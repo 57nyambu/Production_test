@@ -158,32 +158,39 @@ def anyUpdate(user, updateName, link):
 def modelGuide(user):
     link = "https://finarchitect.site"
     params: resend.Emails.SendParams = {
-    "from": "Finarchitect <guide@finarchitect.site>",
-    "to": [user],
-    "subject": "Your Guide to Financial Modeling",
-    "html": f"""
-        <html>
-        <body>
-            <h1>Your Guide to Financial Modeling</h1>
-            <p>Financial modeling is an essential tool for making informed business decisions and planning for the future. 
-            Whether you're a seasoned financial professional or new to the world of finance, our comprehensive guide will help you navigate the intricacies of financial decisions
-            with our statistical based financial models.</p>
-            <p>Click the link below to access your free guide:</p>
-            <p><a href="{link}" style="
-                background-color: #007bff;
-                color: white;
-                padding: 10px 20px;
-                text-decoration: none;
-                border-radius: 5px;
-                display: inline-block;
-                margin: 20px 0;
-            <p>If you have any questions or need assistance, 
-            <p>feel free to reach out to our support team at <a href="tom@finarchitect.site">Support</a></p>
-            <p>Best Regards,</p>
-            <p>The Finarchitect Team</p>
-        </body>
-        </html>
-    """
+        "from": "Susan from Finarchitect <guide@finarchitect.site>",
+        "to": [user],
+        "subject": "Your Financial Modeling Guide (As Requested)",
+        "html": f"""
+            <html>
+            <body style="font-family: Arial, sans-serif; line-height: 1.6; max-width: 600px; margin: 0 auto;">
+                <p>Hi there,</p>
+                
+                <p>Here's the financial modeling guide you requested. It covers key concepts and practical steps to help you build robust financial models for better decision-making.</p>
+                
+                <p><strong>Access your guide with one click:</strong></p>
+                
+                <table align="center" cellpadding="0" cellspacing="0" style="margin: 20px auto;">
+                    <tr>
+                        <td align="center" style="border-radius: 4px;" bgcolor="#2563eb">
+                            <a href="{link}" target="_blank" style="font-size: 16px; font-family: Arial, sans-serif; color: #ffffff; text-decoration: none; border-radius: 4px; padding: 12px 24px; border: 1px solid #2563eb; display: inline-block; font-weight: bold;">
+                                View Financial Modeling Guide
+                            </a>
+                        </td>
+                    </tr>
+                </table>
+                
+                <p>If you'd like a walkthrough or have questions, reply to this email—I'm happy to help.</p>
+                
+                <p>Best regards,<br>
+                Susan<br>
+                Finarchitect Team</p>
+                
+                <p style="font-size: 0.9em; color: #666;">
+                    P.S. If you didn't request this guide, let us know so we can update our records.
+                </p>
+            </body>
+            </html>
+        """
     }
-
     email = resend.Emails.send(params)

@@ -28,12 +28,12 @@ class EmailsAPIView(APIView):
                 # Save the email data regardless of sending success
                 email_data = serializer.save()
                 
-                return Response({"message": "Email processed"}, status=status.HTTP_201_CREATED)
+                return Response({"message": "Email sent"}, status=status.HTTP_201_CREATED)
             else:
-                return Response({"message": "Request processed"}, status=status.HTTP_200_OK)
+                return Response({"message": "Ooopsie!", "error": serializer.errors}, status=status.HTTP_200_OK)
                 
         except Exception as e:
-            return Response({"message": "Request processed"}, status=status.HTTP_200_OK)
+            return Response({"message": "Request processed", "error": serializer.errors}, status=status.HTTP_200_OK)
 
 class EmailsListAPIView(APIView):
     def get(self, request):
