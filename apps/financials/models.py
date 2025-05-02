@@ -47,8 +47,14 @@ class RevenueDrivers(BaseModel):
     q3 = models.DecimalField(default=25, max_digits=5, decimal_places=2)
     q4 = models.DecimalField(default=25, max_digits=5, decimal_places=2)
 
+    def calculate_revenue(self):
+        total_revenue = 0
+        for stream in self.revenue_streams.all():
+            total_revenue += stream.amount * self.units_sold
+        return total_revenue
+    
     def __str__(self):
-        return f"Revenue Drivers (ASP: {self.percentage_comm}, Units Sold: {self.units_sold})"
+        return f"Revenue Drivers (ASP: {self.percentage_comm}, Total Revenue: {self.calculate_revenue()})"
 
 
 # Revenue & Expenses

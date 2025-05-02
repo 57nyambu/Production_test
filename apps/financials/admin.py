@@ -6,5 +6,5 @@ from .models import (
 
 )
 
-admin.site.register(Capex)
+admin.site.register(RevenueDrivers)
 

@@ -5,6 +5,7 @@ from apps.financials.models import RevenueStream
 from apps.customer.models import CustomerDistribution
 
 
+
 class RevenueModelSerializer(BaseCombinedSerializer):
     class Meta(BaseCombinedSerializer.Meta):
         model = RevenueModel
@@ -12,8 +13,8 @@ class RevenueModelSerializer(BaseCombinedSerializer):
             "percentage_comm", "units_sold"]
         
 
-class RevenueStreamsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = RevenueStream
-        fields = ['name', 'type', 'amount']
-
+class RevenueOutputSerializer(serializers.Serializer):
+    year = serializers.IntegerField()
+    cust_type = serializers.CharField()
+    amount = serializers.DecimalField(max_digits=20, decimal_places=2)
+    count = serializers.IntegerField()

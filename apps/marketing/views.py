@@ -4,10 +4,11 @@ from .serializers import (
     GrowthProjectionSerializer,
     CustomerTypeDistributionSerializer,
 )
-from apps.utils.baseViews import BaseAPIView, BaseReadOnlyView
+from apps.utils.baseViews import BaseAPIView
 from rest_framework.response import Response
 from rest_framework import status
-from apps.customer.models import CustomerDistribution
+from apps.customer.models import CustomerDistribution, CustomerModel
+from rest_framework.views import APIView
 
 
 class MarketingMetricsView(BaseAPIView):
@@ -16,47 +17,32 @@ class MarketingMetricsView(BaseAPIView):
     serializer_class = MarketingMetricsSerializer
 
 
-class GrowthProjectionView(BaseReadOnlyView):
+class GrowthProjectionView(APIView):
     """View to handle Growth Projection API requests."""
-    model_class = MarketingMetrics
-    serializer_class = MarketingMetricsSerializer
 
     def get(self, request, *args, **kwargs):
         """Handle GET request for growth projection."""
-        instance = self.model_class.objects.filter(user=request.user).first()
+        # Fetch the MarketingMetrics instance for the current user
+        instance = MarketingMetrics.objects.filter(user=request.user).first()
         if not instance:
-            return self._error_response(f"No data found for {self.model_class.__name__}.", status.HTTP_404_NOT_FOUND)
+            return self._error_response("No data found for MarketingMetrics.", status.HTTP_404_NOT_FOUND)
+        
+        customer_instance = CustomerModel.objects.filter(user=request.user).first()
+        if not customer_instance:
+            return self._error_response("No data found for CustomerModel.", status.HTTP_404_NOT_FOUND)
+        
+        beginning_client = customer_instance.beginning_client
 
-        growth_rates = sorted(instance.growth_rate.all(), key=lambda x: x.year)
-        if not growth_rates:
+        # Delegate growth projection calculation to the model
+        yearly_projections = instance.calculate_growth_projections(beginning_client)
+        if not yearly_projections:
             return self._error_response("No growth rates found for projection.", status.HTTP_400_BAD_REQUEST)
 
-        yearly_projections = self._calculate_growth_projections(instance.new_monthly_customers, growth_rates)
-        distribution_data = self._calculate_customer_distribution(request.user, yearly_projections)
+        # Delegate customer distribution calculation to the model
+        distribution_data = CustomerDistribution.calculate_distribution(request.user, yearly_projections[0]["customers"])
 
+        # Build and return the response
         return self._build_response(yearly_projections, distribution_data)
-
-    def _calculate_growth_projections(self, initial_customers, growth_rates):
-        """Calculate yearly growth projections."""
-        total_customers = initial_customers
-        projections = []
-        for growth in growth_rates:
-            projections.append({"year": growth.year, "customers": int(total_customers)})
-            total_customers *= (1 + float(growth.rate) / 100)
-        return projections
-
-    def _calculate_customer_distribution(self, user, yearly_projections):
-        """Calculate customer distribution based on the first year's total."""
-        first_year_total = yearly_projections[0]["customers"] if yearly_projections else 0
-        customer_distributions = CustomerDistribution.objects.filter(user=user)
-        return [
-            {
-                "customer_type": dist.customer_type,
-                "count": int(first_year_total * float(dist.percentage) / 100),
-                "percentage": float(dist.percentage),
-            }
-            for dist in customer_distributions
-        ]
 
     def _build_response(self, projections, distribution_data):
         """Build the final response."""

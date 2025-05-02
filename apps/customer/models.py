@@ -1,8 +1,6 @@
 import uuid
 from django.db import models
-from django.contrib.auth import get_user_model
-CustomUser = get_user_model()
-from apps.marketing.models import MarketingMetrics
+from apps.accounts.models import CustomUser
 
 
 class BaseModel(models.Model):
@@ -24,15 +22,28 @@ class CustomerModel(BaseModel):
     organic_client = models.PositiveIntegerField(default=0)
 
     def __str__(self):
-        return f"Customer Type: {self.beginning_client}"
+        return f"Customer Type: {self.cust_type},"
     
-
+    
 class CustomerDistribution(BaseModel):
     customer_type = models.CharField(max_length=255)
     percentage = models.DecimalField(max_digits=5, decimal_places=2)
 
     def __str__(self):
         return f"{self.customer_type} - {self.percentage}%"
+    
+    @staticmethod
+    def calculate_distribution(user, total_customers):
+        """Calculate customer distribution for a given user and total customers."""
+        distributions = CustomerDistribution.objects.filter(user=user)
+        return [
+            {
+                "customer_type": dist.customer_type,
+                "count": int(total_customers * float(dist.percentage) / 100),
+                "percentage": float(dist.percentage),
+            }
+            for dist in distributions
+        ]
     
 
 class ChurnRate(BaseModel):
