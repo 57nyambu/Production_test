@@ -114,7 +114,7 @@ class BaseAPIView(APIView):
             
     @transaction.atomic
     def delete(self, request, *args, **kwargs):
-        """Delete existing resource."""
+        """Delete entire resource or nested related items based on payload."""
         instance = self.get_instance(request)
         if not instance:
             return self.format_response(
@@ -122,13 +122,47 @@ class BaseAPIView(APIView):
                 success=False,
                 status_code=status.HTTP_404_NOT_FOUND
             )
-            
-        instance.delete()
-        
+
+        # If no payload, delete the whole main instance
+        if not request.data:
+            instance.delete()
+            return self.format_response(
+                message="Data deleted successfully",
+                success=True
+            )
+
+        # Delete nested items based on payload keys and IDs
+        errors = []
+        for field_name, ids in request.data.items():
+            field = getattr(instance, field_name, None)
+            if not field or not hasattr(field, "model"):
+                errors.append(f"Invalid field: {field_name}")
+                continue
+
+            related_model = field.model
+            user = request.user
+
+            for obj_id in ids:
+                try:
+                    related_instance = related_model.objects.get(id=obj_id, user=user)
+                    field.remove(related_instance)  # For many-to-many
+                    related_instance.delete()      # If you want to delete the object itself
+                except related_model.DoesNotExist:
+                    errors.append(f"{field_name} id {obj_id} not found")
+
+        if errors:
+            return self.format_response(
+                message="Partial deletion with some errors",
+                data={"errors": errors},
+                success=False,
+                status_code=status.HTTP_207_MULTI_STATUS
+            )
+
         return self.format_response(
-            message="Data deleted successfully",
+            message="Nested items deleted successfully",
             success=True
         )
+
 
 
 class BaseReadOnlyView(APIView):

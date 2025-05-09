@@ -50,7 +50,7 @@ class RevenueDrivers(BaseModel):
     def calculate_revenue(self):
         total_revenue = 0
         for stream in self.revenue_streams.all():
-            total_revenue += stream.amount * self.units_sold
+            total_revenue += stream.amount + (self.percentage_comm * self.units_sold)
         return total_revenue
     
     def __str__(self):
@@ -71,6 +71,13 @@ class CostStracture(BaseModel):
     cd_raw_material = models.DecimalField(max_digits=15, decimal_places=2)
     cd_direct_labor = models.DecimalField(max_digits=15, decimal_places=2)
     cd_man_overhead = models.DecimalField(max_digits=15, decimal_places=2)
+
+    def cogs_calculation(self):
+        return (
+            self.raw_material + self.direct_labor + self.man_overhead +
+            self.fixed_cost + self.variable_cost + self.cd_raw_material +
+            self.cd_direct_labor + self.cd_man_overhead
+        )
 
 
 class EmployeeInfo(BaseModel):
@@ -97,6 +104,12 @@ class AllExpenses(BaseModel):
 
     def __str__(self):
         return f"All Expenses (ASP: {self.average_selling_price}, Units Sold: {self.units_sold})"
+    
+    def all_expens_calc(self):
+        employee_cost = sum(emp.salary * emp.count for emp in self.employee_info.all())
+        admin_cost = sum(admin.amount for admin in self.admin_marketing_exp.all())
+
+        return (employee_cost + admin_cost)
 
 
 # Capital expenditure planning
