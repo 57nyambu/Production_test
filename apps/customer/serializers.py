@@ -31,18 +31,38 @@ class CustomerModelSerializer(BaseCombinedSerializer):
         ]        
 
 
-class OrganicCustomerGrowthProjectionSerializer(serializers.Serializer):
-    """Serializer for online customer growth projection."""
+class OrganicCustomerYearMetricsSerializer(serializers.Serializer):
     year = serializers.IntegerField()
-    customers = serializers.IntegerField()
+    beginning_client = serializers.IntegerField()
+    new_clients = serializers.IntegerField()
+    churned_clients = serializers.IntegerField()
+    closing_clients = serializers.IntegerField()
 
 
-class OrganicCustomerChurnRateSerializer(serializers.Serializer):
-    """Serializer for online customer churn rate."""
+class OrganicCustomerMetricsSerializer(serializers.Serializer):
+    organic_metrics = OrganicCustomerYearMetricsSerializer(many=True)
+
+
+class OfflineCustomerYearMetricsSerializer(serializers.Serializer):
     year = serializers.IntegerField()
-    rate = serializers.DecimalField(max_digits=5, decimal_places=2)
+    beginning_client = serializers.IntegerField()
+    new_clients = serializers.IntegerField()
+    churned_clients = serializers.IntegerField()
+    closing_clients = serializers.IntegerField()
 
 
-class OrganicCustDistributionSerializer(serializers.Serializer):
+class PercentageDistributionSerializer(serializers.Serializer):
+    year = serializers.IntegerField()
     customer_type = serializers.CharField()
     percentage = serializers.DecimalField(max_digits=5, decimal_places=2)
+    january_value = serializers.IntegerField()
+
+
+class OfflineCustomerMetricsSerializer(serializers.Serializer):
+    offline_metrics = OfflineCustomerYearMetricsSerializer(many=True)
+    percentage_distributions = PercentageDistributionSerializer(many=True)
+
+
+class CombinedCustomerMetricsSerializer(serializers.Serializer):
+    organic = OrganicCustomerMetricsSerializer(allow_null=True)
+    offline = OfflineCustomerMetricsSerializer(allow_null=True)

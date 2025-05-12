@@ -131,7 +131,7 @@ SPECTACULAR_SETTINGS = {
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Africa/Nairobi'
 
 USE_I18N = True
 
@@ -151,7 +151,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'accounts.CustomUser'
 
 # Email conf
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 RESEND_KEY = env('FINARCHITECT_RESEND_KEY')
 # Security settings
 SECURE_BROWSER_XSS_FILTER = True
