@@ -194,7 +194,7 @@ class IsAdminUser(permissions.BasePermission):
 class AdminUserViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = CustomUser.objects.all().select_related('subscription', 'subscription__plan')
     serializer_class = AdminUserDetailSerializer
-    #permission_classes = [IsAdminUser]
+    permission_classes = [IsAdminUser]
     filter_backends = [SearchFilter, OrderingFilter]
     search_fields = ['email', 'first_name', 'last_name']
     ordering_fields = ['date_joined', 'email', 'subscription__plan__name']

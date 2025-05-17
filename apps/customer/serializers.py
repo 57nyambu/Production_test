@@ -1,7 +1,28 @@
 from rest_framework import serializers
 from .models import CustomerModel, CustomerDistribution, ChurnRate
 from apps.marketing.models import GrowthRate
+from apps.financials.models import RevenueStream, RevenueDrivers
+from apps.financials.serializers import RevenueStreamSerializer
 from apps.utils.baseSerializers import BaseCombinedSerializer
+
+class RevenueStreamSerializer(BaseCombinedSerializer):
+    class Meta(BaseCombinedSerializer.Meta):
+        model = RevenueStream
+        fields = BaseCombinedSerializer.Meta.fields + [
+            'name', 'percentage'
+        ]
+
+
+class RevenueDriversSerializer(BaseCombinedSerializer):
+    #required_fields = ['average_selling_price', 'units_sold',]
+    revenue_streams = RevenueStreamSerializer(many=True, required=False)
+
+    class Meta(BaseCombinedSerializer.Meta):
+        model = RevenueDrivers
+        fields = BaseCombinedSerializer.Meta.fields + [
+            'percentage_comm',  'revenue_streams'#, 'q1', 'q2', 'q3', 'q4'
+        ]
+
 
 class GrowthRateSerializer(serializers.ModelSerializer):
     class Meta:
@@ -22,12 +43,12 @@ class ChurnRateSerializer(BaseCombinedSerializer):
 
 
 class CustomerModelSerializer(BaseCombinedSerializer):
-    cust_type = CustomerDistributionSerializer(many=True, required=False)
+    #cust_type = CustomerDistributionSerializer(many=True, required=False)
     churn_rate = ChurnRateSerializer(many=True, required=False)
     class Meta(BaseCombinedSerializer.Meta):
         model = CustomerModel
         fields = BaseCombinedSerializer.Meta.fields + [
-            "churn_rate", "cust_type", "beginning_client", "conversion_rate", "organic_client"
+            "churn_rate", "beginning_client", "conversion_rate", "organic_client"
         ]        
 
 

@@ -43,7 +43,7 @@ class RevenueStreamSerializer(BaseCombinedSerializer):
     class Meta(BaseCombinedSerializer.Meta):
         model = RevenueStream
         fields = BaseCombinedSerializer.Meta.fields + [
-            'name', 'type', 'amount'
+            'name', 'type', 'amount'#, 'percentage'
         ]
 
 

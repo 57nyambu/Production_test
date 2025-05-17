@@ -33,9 +33,11 @@ class RevenueStream(BaseModel):
     name = models.CharField(max_length=255)
     type = models.CharField(max_length=50)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
+    percentage = models.DecimalField(max_digits=5, decimal_places=2, default=0, blank=True, null=True)
 
     def __str__(self):
         return f"{self.name} ({self.type})"
+
 
 class RevenueDrivers(BaseModel):
     percentage_comm = models.DecimalField(max_digits=5, decimal_places=2) 

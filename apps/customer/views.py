@@ -1,5 +1,6 @@
 from .models import CustomerModel
 from apps.marketing.models import GrowthRate
+from apps.financials.models import RevenueStream, RevenueDrivers
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
@@ -8,6 +9,7 @@ from .serializers import (
     CustomerModelSerializer,
     CombinedCustomerMetricsSerializer,
     CustomerDistributionSerializer,
+    RevenueDriversSerializer
 )
 from .services import get_combined_customer_metrics
 from apps.utils.baseViews import BaseAPIView
@@ -15,6 +17,11 @@ from apps.utils.baseViews import BaseAPIView
 class CustomerModelView(BaseAPIView):
     model = CustomerModel
     serializer_class = CustomerModelSerializer
+
+
+class RevenueDriversView(BaseAPIView):
+    model = RevenueDrivers
+    serializer_class = RevenueDriversSerializer
 
 
 class CombinedCustomerMetricsView(APIView):
