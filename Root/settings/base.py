@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
+    'drf_spectacular',
     'corsheaders',
     'apps.accounts',
     'apps.financials',
@@ -49,6 +50,13 @@ REST_FRAMEWORK = {
         'rest_framework.parsers.JSONParser',
         'rest_framework.parsers.FormParser',  # Optional: for form data
     ],
+}
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "FinArchitect Api Documentation",
+    "DESCRIPTION": "Backend Financial analytics",
+    "VERSION": "1.0.0",
+    "SERVER_INCLUDE_SCHEMA": False,
 }
 
 APPEND_SLASH = True
@@ -119,12 +127,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
-SPECTACULAR_SETTINGS = {
-    'TITLE': 'Subscription API',
-    'DESCRIPTION': 'API for managing subscriptions and plans.',
-    'VERSION': '1.0.0',
-}
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/

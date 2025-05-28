@@ -13,3 +13,5 @@ payload.txt
 doc.txt
 .gitignore
 .backup
+.idea
+.vscode

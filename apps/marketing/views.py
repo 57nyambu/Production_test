@@ -4,11 +4,20 @@ from .serializers import (
     GrowthProjectionSerializer,
     CustomerTypeDistributionSerializer,
 )
+from apps.financials.models import RevenueStream
 from apps.utils.baseViews import BaseAPIView
 from rest_framework.response import Response
 from rest_framework import status
 from apps.customer.models import CustomerDistribution, CustomerModel
 from rest_framework.views import APIView
+from rest_framework import serializers  # For local serializer
+
+
+# Local serializer for RevenueStream (only name and percentage)
+class LocalRevenueStreamSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RevenueStream
+        fields = ['name', 'percentage']
 
 
 class MarketingMetricsView(BaseAPIView):
@@ -38,8 +47,24 @@ class GrowthProjectionView(APIView):
         if not yearly_projections:
             return self._error_response("No growth rates found for projection.", status.HTTP_400_BAD_REQUEST)
 
-        # Delegate customer distribution calculation to the model
+        # Get the customer distribution as before
         distribution_data = CustomerDistribution.calculate_distribution(request.user, yearly_projections[0]["customers"])
+
+        # Fetch RevenueStreams for the user and serialize
+        revenue_streams = RevenueStream.objects.filter(user=request.user)
+        revenue_data = LocalRevenueStreamSerializer(revenue_streams, many=True).data
+
+        # Replace 'customer_type' and 'percentage' in distribution_data with values from RevenueStream
+        # Match by index, up to the shortest list
+        min_len = min(len(distribution_data), len(revenue_data))
+        for i in range(min_len):
+            distribution_data[i]["customer_type"] = revenue_data[i]["name"]
+            distribution_data[i]["percentage"] = revenue_data[i]["percentage"]
+
+        # Optionally, if distribution_data is longer, clear out the unmatched ones
+        for i in range(min_len, len(distribution_data)):
+            distribution_data[i]["customer_type"] = ""
+            distribution_data[i]["percentage"] = 0
 
         # Build and return the response
         return self._build_response(yearly_projections, distribution_data)
