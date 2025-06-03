@@ -32,7 +32,6 @@ class WorkingCapital(BaseModel):
 class RevenueDrivers(BaseModel):
     percentage_comm = models.DecimalField(max_digits=5, decimal_places=2) 
     units_sold = models.PositiveIntegerField()
-    revenue_streams = models.ManyToManyField("RevenueStream", related_name="drivers")
     # Quartely seasonality
     q1 = models.DecimalField(default=25, max_digits=5, decimal_places=2)
     q2 = models.DecimalField(default=25, max_digits=5, decimal_places=2)
@@ -50,7 +49,7 @@ class RevenueDrivers(BaseModel):
     
 
 class RevenueStream(BaseModel):
-    driver = models.ForeignKey(RevenueDrivers, on_delete=models.CASCADE, related_name='revenue_streams_fk', null=True, blank=True)
+    driver = models.ForeignKey(RevenueDrivers, on_delete=models.CASCADE, related_name='revenue_streams')
     name = models.CharField(max_length=255)
     type = models.CharField(max_length=50)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
