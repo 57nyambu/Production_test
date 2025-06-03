@@ -50,7 +50,7 @@ class RevenueDrivers(BaseModel):
     
 
 class RevenueStream(BaseModel):
-    driver = models.ForeignKey(RevenueDrivers, on_delete=models.CASCADE, related_name='revenue_streams_fk')
+    driver = models.ForeignKey(RevenueDrivers, on_delete=models.CASCADE, related_name='revenue_streams_fk', null=True, blank=True)
     name = models.CharField(max_length=255)
     type = models.CharField(max_length=50)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
