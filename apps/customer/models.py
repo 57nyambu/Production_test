@@ -26,7 +26,7 @@ class CustomerModel(BaseModel):
     
     
 class CustomerDistribution(BaseModel):
-    #cust_model = models.ForeignKey(CustomerModel, on_delete=models.CASCADE, related_name="distributions", null=True, blank=True)
+    cust_model = models.ForeignKey(CustomerModel, on_delete=models.CASCADE, related_name="distributions", null=True, blank=True)
     customer_type = models.CharField(max_length=255)
     percentage = models.DecimalField(max_digits=5, decimal_places=2)
 
