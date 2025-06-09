@@ -8,7 +8,6 @@ from rest_framework.views import APIView
 from .serializers import (
     CustomerModelSerializer,
     CombinedCustomerMetricsSerializer,
-    CustomerDistributionSerializer,
     RevenueDriversSerializer
 )
 from .services import get_combined_customer_metrics
