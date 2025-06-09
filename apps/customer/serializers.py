@@ -43,7 +43,7 @@ class ChurnRateSerializer(BaseCombinedSerializer):
 
 
 class CustomerModelSerializer(BaseCombinedSerializer):
-    #cust_type = CustomerDistributionSerializer(many=True, required=False)
+    cust_type = CustomerDistributionSerializer(many=True, required=False)
     churn_rate = ChurnRateSerializer(many=True, required=False)
     class Meta(BaseCombinedSerializer.Meta):
         model = CustomerModel
