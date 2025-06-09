@@ -14,6 +14,7 @@ class BaseModel(models.Model):
 
 
 class CustomerModel(BaseModel):
+    cust_type = models.ManyToManyField('CustomerDistribution', related_name="customer_model")
     churn_rate = models.ManyToManyField('ChurnRate', related_name="customer_model")
     beginning_client = models.PositiveIntegerField(default=0)
     # Acquisition metrics
@@ -25,6 +26,7 @@ class CustomerModel(BaseModel):
     
     
 class CustomerDistribution(BaseModel):
+    #cust_model = models.ForeignKey(CustomerModel, on_delete=models.CASCADE, related_name="distributions", null=True, blank=True)
     customer_type = models.CharField(max_length=255)
     percentage = models.DecimalField(max_digits=5, decimal_places=2)
 
