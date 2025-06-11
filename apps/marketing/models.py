@@ -38,6 +38,7 @@ class MarketingMetrics(BaseModel):
         return projections
 
 class MarketingComponent(BaseModel):
+    market_metrics = models.ForeignKey(MarketingMetrics, on_delete=models.CASCADE, related_name='components', null=True, blank=True)
     type = models.CharField(max_length=255)  # Example: "Social Media Ads", "Google Ads"
     cost = models.DecimalField(max_digits=15, decimal_places=2, default=0.00)
 
@@ -46,6 +47,7 @@ class MarketingComponent(BaseModel):
 
 
 class GrowthRate(BaseModel):
+    marketing_metrics = models.ForeignKey(MarketingMetrics, on_delete=models.CASCADE, related_name='growth_rates', null=True, blank=True)
     year = models.IntegerField()
     rate = models.DecimalField(max_digits=5, decimal_places=2)
 
