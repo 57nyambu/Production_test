@@ -19,7 +19,7 @@ class CustomerModel(BaseModel):
     organic_client = models.PositiveIntegerField(default=0)
 
     def __str__(self):
-        return f"Customer Type: {self.cust_type},"
+        return f"Beginning Client: {self.beginning_client}, user: {self.user.email}"
     
     
 class CustomerDistribution(BaseModel):
@@ -31,9 +31,9 @@ class CustomerDistribution(BaseModel):
         return f"{self.customer_type} - {self.percentage}%"
     
     @staticmethod
-    def calculate_distribution(user, total_customers):
-        #Calculate customer distribution for a given user and total customers.
-        distributions = CustomerDistribution.objects.filter(user=user)
+    def calculate_distribution(cust_model, total_customers):
+        """Calculate customer distribution for a given customer model and total customers."""
+        distributions = CustomerDistribution.objects.filter(cust_model=cust_model)
         return [
             {
                 "customer_type": dist.customer_type,
