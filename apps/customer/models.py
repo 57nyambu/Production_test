@@ -2,7 +2,6 @@ import uuid
 from django.db import models
 from apps.accounts.models import CustomUser
 
-
 class BaseModel(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="%(class)ss")
@@ -14,8 +13,6 @@ class BaseModel(models.Model):
 
 
 class CustomerModel(BaseModel):
-    cust_type = models.ManyToManyField('CustomerDistribution', related_name="customer_model")
-    churn_rate = models.ManyToManyField('ChurnRate', related_name="customer_model")
     beginning_client = models.PositiveIntegerField(default=0)
     # Acquisition metrics
     conversion_rate = models.DecimalField(default=0.00, max_digits=5, decimal_places=2)
@@ -35,7 +32,7 @@ class CustomerDistribution(BaseModel):
     
     @staticmethod
     def calculate_distribution(user, total_customers):
-        """Calculate customer distribution for a given user and total customers."""
+        #Calculate customer distribution for a given user and total customers.
         distributions = CustomerDistribution.objects.filter(user=user)
         return [
             {
@@ -48,5 +45,6 @@ class CustomerDistribution(BaseModel):
     
 
 class ChurnRate(BaseModel):
+    cust_model = models.ForeignKey(CustomerModel, on_delete=models.CASCADE, related_name="churn_rates", null=True, blank=True)
     year = models.CharField(max_length=255)
     rate = models.DecimalField(max_digits=5, decimal_places=2)
