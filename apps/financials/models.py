@@ -122,6 +122,8 @@ class AllExpenses(BaseModel):
 
 # Capital expenditure planning
 class Asset(BaseModel):
+    # The Asset model already has the correct FK:
+    capex = models.ForeignKey('Capex', on_delete=models.CASCADE, related_name='asset_items', null=True, blank=True)
     name = models.CharField(max_length=255)
     value = models.DecimalField(max_digits=15, decimal_places=2)
     type = models.CharField(max_length=50)
@@ -135,7 +137,7 @@ class Capex(BaseModel):
     growth_capex = models.DecimalField(max_digits=5, decimal_places=2)
     asset_lifespan = models.PositiveIntegerField()
     capitalized_costs = models.DecimalField(max_digits=15, decimal_places=2)
-    assets = models.ManyToManyField(Asset)
+    assets = models.ManyToManyField(Asset, related_name='capex_assets')
 
     def __str__(self):
         return f"Capex (Maintenance: {self.maintenance_capex}, Growth: {self.growth_capex})"
