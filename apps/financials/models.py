@@ -1,6 +1,7 @@
 from django.db import models
 import uuid
 from apps.accounts.models import CustomUser
+from decimal import Decimal
 
 # Base Model with UUID
 class BaseModel(models.Model):
@@ -27,8 +28,8 @@ class WorkingCapital(BaseModel):
     days_inventory = models.PositiveIntegerField()
     days_payables = models.PositiveIntegerField()
     working_capital_days = models.PositiveIntegerField()
-
     
+
 class RevenueDrivers(BaseModel):
     percentage_comm = models.DecimalField(max_digits=5, decimal_places=2) 
     units_sold = models.PositiveIntegerField()
@@ -39,25 +40,28 @@ class RevenueDrivers(BaseModel):
     q4 = models.DecimalField(default=25, max_digits=5, decimal_places=2)
 
     def calculate_revenue(self):
-        total_revenue = 0
+        total_revenue = Decimal('0.00')
         for stream in self.revenue_streams.all():
-            total_revenue += stream.amount + (self.percentage_comm * self.units_sold)
+            # Apply commission as a percentage to the revenue from units sold
+            commission_amount = (self.percentage_comm / Decimal('100.0')) * self.units_sold
+            stream_revenue = stream.amount or Decimal('0.00')
+            total_revenue += stream_revenue + commission_amount
         return total_revenue
-    
+
     def __str__(self):
-        return f"Revenue Drivers (ASP: {self.percentage_comm}, Total Revenue: {self.calculate_revenue()})"
-    
+        return f"Revenue Drivers (Commission: {self.percentage_comm}%, Total Revenue: {self.calculate_revenue()})"
+
 
 class RevenueStream(BaseModel):
     driver = models.ForeignKey(RevenueDrivers, on_delete=models.CASCADE, related_name='revenue_streams')
-    name = models.CharField(max_length=255)
-    type = models.CharField(max_length=50)
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    name = models.CharField(max_length=255, blank=True, null=True)
+    type = models.CharField(max_length=50, blank=True, null=True)
+    amount = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     percentage = models.DecimalField(max_digits=5, decimal_places=2, default=0, blank=True, null=True)
 
     def __str__(self):
         return f"{self.name} ({self.type})"
-    
+
 
 # Revenue & Expenses
 class CostStracture(BaseModel):
@@ -83,6 +87,7 @@ class CostStracture(BaseModel):
 
 
 class EmployeeInfo(BaseModel):
+    all_expenses = models.ForeignKey('AllExpenses', on_delete=models.CASCADE, related_name='employees', null=True, blank=True)
     position = models.CharField(max_length=255)
     salary = models.DecimalField(max_digits=10, decimal_places=2)
     count = models.PositiveIntegerField()
@@ -92,6 +97,7 @@ class EmployeeInfo(BaseModel):
         return f"{self.position} (Count: {self.count}, Salary Growth Rate: {self.salary_growth_rate}%)"
 
 class AdminMarketingExp(BaseModel):
+    all_expenses = models.ForeignKey('AllExpenses', on_delete=models.CASCADE, related_name='admin_expenses', null=True, blank=True)
     exp_type = models.CharField(max_length=255)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     description = models.TextField()
